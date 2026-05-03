@@ -1,0 +1,178 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage[b5paper, margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\usepackage{bm}
+
+%Drawing Graphs
+\usepackage{tikz}
+\usepackage{pgfplots} \pgfplotsset{compat=newest}
+
+%Extra math symbols
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+
+\begin{document}
+
+
+\section*{Problem 1}
+    \textit{(LP Formulations)} In lecture, Professor Brito mentioned how computational techniques, like interior-point methods, can solve Linear Programming (LP) problems very efficiently and with a high degree of accuracy. Thus, one could argue the more difficult challenge is formulating a problem as an LP, which is exactly the goal of this problem.
+
+    \vspace{2mm}
+    Consider a scenario involving an autonomous drone. The goal is to navigate the drone from its initial position to a desired final position while minimizing the total energy consumption. The vehicle operates in 3D space, so its state $\bm{x}(t) \in \mathbb{R}^{6}$ is given by $[x, y, z, \dot{x}, \dot{y}, \dot{z}]$ for $t = 0, \ldots, N$. Furthermore, the drone is controlled by four brushless motors, whose actuator signals are given by $\bm{u}(t) \in \mathbb{R}^{4}$, for $t = 0, \ldots, N - 1$. The dynamics of the system is given by the linear relation
+    \begin{equation}
+        \bm{x}(t+1) = \bm{A}\bm{x}(t) + \bm{B}\bm{u}(t), \quad t = 0, \ldots, N-1,``
+    \end{equation}
+    where $\bm{A} \in \mathbb{R}^{6 \times 6}$ and $\bm{B} \in \mathbb{R}^{6 \times 4}$ are given. We assume that the initial state is zero, i.e., $\bm{x}(0) = \bm{0}.$ 
+    Our goal is to choose the inputs $\bm{u}(0), \ldots, \bm{u}(N - 1)$ to minimize the energy use, which is given by
+    \begin{equation}
+        E = \sum_{t = 0}^{N -  1} \sum_{i = 1}^{4} f(u_{i}(t)),
+    \end{equation}
+    subject to the constraint that $\bm{x}(N) = \bm{x}_{\text{stop}}$, where $\bm{x}_{\text{stop}} \in \mathbb{R}^{6}$ is a (given) desired target state. The function $f \colon \mathbb{R} \to \mathbb{R}$ is the energy consumption map for an actuator. It represents the amount of energy consumed as a function of the actuator signal amplitude. In this problem we use
+    \begin{equation}
+        f(a) =
+        \begin{cases}
+            |a| & \text{if } |a| \leq 1, \\
+            3|a| - 2 & \text{if } |a| > 1.
+        \end{cases}
+    \end{equation}
+    In other words, we set energy use to be proportional to the absolute value of the actuator signal (for small actuator signals; for larger actuator signals the efficiency is reduced by a factor of three.) Your task is as follows: \textbf{Formulate this optimal control problem as an LP in standard form, as described in class.} We expect: (1) An explanation regarding the formulation of each of the constraints, (2) A clear description of the formulated LP, and (3) A conversion of the LP to standard form.
+
+    \vspace{2mm}
+    \textit{Note: Try to keep your answer reasonably concise, with appropriate vector representations of the data.}
+
+\subsection*{Problem 1 Solution}
+There are two key insights
+\begin{enumerate}
+    \item 
+    We begin by trying to ``solve" the dynamical system, which in essence is a recurrence. Of course, we cannot, but just stick with us. One way to solve a recurrence is try to express bigger values in terms of smaller ones. In this case, we have 
+    \begin{align*}
+        \bm{x}(1) &= \bm{A}\bm{x}(0) + B\bm{u}(0) = B\bm{u}(0) \\
+        \bm{x}(2) &= \bm{A}B\bm{u}(0) + B\bm{u}(1) \\
+        x(N) &= \bm{A}^{N - 1}\bm{B}\bm{u}(0) + \bm{A}^{N - 2}\bm{B}\bm{u}(1) + \dots + \bm{A}\bm{B}\bm{u}(N - 1) + \bm{B}\bm{u}(N - 1) = \bm{x}_{final}
+    \end{align*}
+    We now define the controllability matrix: $$C = \begin{bmatrix}
+        \bm{A}^{N - 1}\bm{B} & \bm{A}^{N - 2}\bm{B} &  \cdots & \bm{A}\bm{B} & \bm{B}
+    \end{bmatrix}$$
+    Which we can substitute to our equation to get our ``navigation" constraint: $$\bm{C}\bm{u} = \bm{x}$$ ofc this only holds for one of the $u_{i}$, so \textbf{you have to do this four times for each of the $u_{i}$}
+    \begin{center}
+        \begin{tikzpicture}
+            \begin{axis}[
+                width=8cm, height=8cm,
+                axis lines = center,
+                yticklabel=\empty,
+                xticklabel=\empty,
+                xmin = -5, xmax = 5,
+                ymin = -5, ymax = 5,
+                xtick={-4,-3,...,4},
+                % minor xtick={-4.5,-3.5,...,4.5},
+                % minor ytick={-4.5,-3.5,...,4.5},
+                ytick={-5,-4,...,5},
+                axis on top
+            ]
+            \addplot[domain=-5:-1] (x, {abs(x)});
+            \addplot[domain=-1:1] (x, {abs(x)});
+            \addplot[domain=1:5] (x, {abs(x)});
+            \addplot[domain=-5:-1] (x, {3 * abs(x) - 2});
+            \addplot[domain=-1:1] (x, {3 * abs(x) - 2});
+            \addplot[domain=1:5] (x, {3 * abs(x) - 2});
+        \end{axis}
+        \end{tikzpicture}
+    \end{center}
+    \item Now we must turn $f$ into a linear objective. Instead of minimizing $f$, we minimize some variable $t$, where \begin{align*}
+        |a| \le t \\
+        3|a| - 2 \le t
+    \end{align*}
+To see that this works, note that for \( |a| \leq 1 \), we have \( |a| \geq 3|a| - 2 \),
+while for \( |a| > 1 \), \( |a| \le 3|a| - 2 \). Then for \( |a| \le 1 \), the second condition
+is redundant, while for \( |a| > 1 \), the first is redundant, which gives us
+exactly what we want. Again, this must be repeated for each of the time steps and each of the $f_{i}$.
+
+\end{enumerate}
+
+\vspace{2mm}
+Everything else is just matrix and vector manipulations. The final answer is \underline{synatatically} correct if:
+\begin{enumerate}[label = \alph*.]
+    \item The objective function can be expressed as $c^{T}x$ for some \textbf{vector} $c$ (NOT A MATRIX)
+    \item The constraints are all of the form $\bm{A}\bm{x} \le \bm{b}$ (yes, you should take off points if inequalities are facing the wrong direction, the direction of the inequality was explicitly defined in lecture).
+    \item All the decision variables are nonnegative.
+\end{enumerate}
+
+Our final answer is 
+
+$$\minimize_{\bm{u}}\ \bm{1}t$$
+
+$$subject to$$
+
+\begin{align*}
+    \bm{C}\bm{u} = \bm{x}
+\end{align*}
+
+% Rewriting above, we have the inequalities
+% \begin{align*}
+% -\text{t} \leq a \leq \text{t} \\
+% -\frac{\text{t} + 2}{3} \leq a \leq \frac{\text{t} + 2}{3}
+% \end{align*}
+
+% Following this methodology, we have added one new variable and four
+% new inequality constraints for each \( u(i) \).
+
+% We can now introduce a vector \( \textbf{t} = [t_0, \ldots, t_{N-1}] \), one \( t_i \)
+% for each \( u(i) \).
+
+% Our linear program is then
+% \[
+% P = \left\{
+% \begin{array}{lll}
+% \text{minimize} & 1 \textbf{t} \\
+% \text{subject to} & -\textbf{t} \leq \textbf{u} \leq \textbf{t} \\
+% & -\frac{\textbf{t}+2}{3} \leq \textbf{u} \leq \frac{\textbf{t}+2}{3} \\
+% & \textbf{Cu} = \textbf{x}_{\text{des}}
+% \end{array}
+% \right.
+% \]
+
+\subsection*{Problem 2 Solution}
+
+\begin{enumerate}[label = \alph*)]
+    \item The absence of arbitrage condition states that there exists no vector $\bm{x}$ such that $\bm{x}^{T}\bm{R}^{T} \ge \bm{0}^{T}$ and $\bm{x}^{T}\bm{p} < 0$. This is of the same form as condition (b) in the Statement of Farkas' lemma. (note that here $\bm{p}$ plays the role of $\bm{b}$, and $\bm{R}^{T}$ plays the role of $\bm{A}$. Therefore, by Farkas' lemma, the absence of arbitrage condition holds if and only if there exists some nonnegative vector $\bm{q}$ such that $\bm{R}^{T}\bm{q} = \bm{p}$, which is the same as the condition in the theorem's statement.
+    \item We construct the payoff matrix:
+    \[ R =
+    \begin{pmatrix}
+    uS & r & \max(0, uS - K) \\
+    dS & r & \max(0, dS - K)
+    \end{pmatrix}
+    \]
+    The equivalence proved in part (a) along with the fact that the absence of arbitrage condition holds allows us to conclude that there exists a \( q \) where \( q \geq 0 \) such that \( p = q^{T} R \). Let \( q = [\gamma, \delta] \). Then, expanding the product:
+    \[ p =
+    \begin{pmatrix}
+    \gamma uS + \delta dS \\
+    \gamma r + \delta r \\
+    \gamma \max(0, uS - K) + \delta \max(0, dS - K)
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+    S(\gamma u + \delta d) \\
+    r(\gamma + \delta) \\
+    \gamma \max(0, uS - K) + \delta \max(0, dS - K)
+    \end{pmatrix}
+    \]
+    The initial value of the stock is \( S \), so from the first row:
+    \[ S(\gamma u + \delta d) = S \]
+    \[ \gamma u + \delta d = 1 \]
+    The initial value of the dollar invested in the risk-free asset is 1, so from the second row:
+    \[ r(\gamma + \delta) = 1  \]
+    \[ \gamma + \delta = \frac{1}{r} \]
+    And, finally, the initial value of the option is:
+    \[ \gamma \max\{uS - K, 0\} + \delta \max\{dS - K, 0\} \]
+\end{enumerate}
+
+
+\section*{Appendix}
+Q1 is adapted from Boyd and Vanderberge
+Q2 is adapted from Introduction to Linear Optimization by Bertimas
+\end{document}

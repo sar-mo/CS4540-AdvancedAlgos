@@ -1,0 +1,228 @@
+\documentclass{article}
+\usepackage[letterpaper, left=1in, right=1in, top=1in, bottom=1in]{geometry}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{xcolor}
+
+\usepackage{enumitem}
+%Creating algorithms
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+% \renewcommand\algorithmicthen{}
+\renewcommand\algorithmicdo{}
+\usepackage{algpseudocode}
+\usepackage{tcolorbox}
+
+
+%Unfinished Cases Environment
+\newlist{Cases}{enumerate}{3}
+\setlist[Cases]{leftmargin = .25in, label = {Case \arabic*.}, topsep = 0.01in, itemsep = 0.04in, itemindent = .5in, parsep = 0in}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setenumerate[2]{label = \roman*., parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+
+
+\begin{document}
+
+\section*{HW6 Solutions}
+    Since I didn’t make this problem, these solutions may not be the most efficient.
+    
+    \vspace{2mm}
+    In the following parts, notate the label of a vertex $v$ as $\ell(v)$ and the set of its children $C_{v}$. Also notate the subtree rooted at vertex $v$ as $T_{v} = (V_{v}, E_{v})$.
+
+\subsection*{Problem 1a Solution}
+    \textbf{Design}
+    
+     First, run DFS to obtain a set of all distinct labels $L$. Now in words, we define
+        \begin{itemize}
+            \item $\textsc{LRMb}_{L}[v][l]$ as the \textbf{size of the largest boring rooted minor of $T_{v}$ such that all of $v$'s children have label $l$.} 
+            \item $\textsc{LRMb}[v]$ as the \textbf{size of the largest boring rooted minor of $T_{v}$}. By definition, $\textsc{LRMb}[v] = \max_{l \in L} \textsc{LRMb}_{L}[v][l]$.
+        \end{itemize}
+    We perform a post-order traversal of $T$, armed with the following recursive formula:
+        $$\textsc{LRMb}_{L}[v, l] = 1 + \sum_{c \in C_{v}} 
+        \begin{cases}
+            \textsc{LRMb}[c] & \text{if $\ell(c) = l$} \\
+            \textsc{LRMb}_{L}[c][l] - 1 & \text{otherwise}.
+        \end{cases}$$
+        
+    \vspace{2mm}
+    \textbf{Correctness}
+    
+        A valid explanation is as follows: The term "1" at the beginning of the formula accounts for the vertex \( v \) itself. Next, we go through each child \( c \) of the vertex \( v \) and accumulate the sizes of the largest boring rooted minors rooted at these children into the sum. There are two cases to consider:
+        \begin{enumerate}[label = \arabic*.]
+            \item \( \ell(c) = l \): If the label \( \ell(c) \) of a child \( c \) matches the target label \( l \), that means this subtree rooted at \( c \) satisfies our 'boring' condition for this case. We can safely include the entire subtree rooted at \( c \) in our rooted minor. Hence, we add \(\textsc{LRMb}[c]\) to our sum.
+            \item \( \ell(c) \neq l \): If the label \( \ell(c) \) of the child \( c \) does not match the target label \( l \), then \( c \) itself cannot be included in this boring rooted minor (as it would break the 'boring' requirement for \( v \)). However, we still have a chance to include some or all of the boring rooted minor that is rooted at \( c \) and satisfies the label \( l \) among its own children. That's what \(\textsc{LRMb}_{L}[c][l]\) is. Since we can't include \( c \) itself, we have to subtract 1: thus, we add \( \textsc{LRMb}_{L}[c][l] - 1 \) to our sum.
+        \end{enumerate}
+        We use post-order traversal to ensure that all the necessary values for the children are available when calculating the value for the parent. Our final answer is given by $\textsc{LRMb}[v_{\text{root}}]$.
+
+    \vspace{2mm}
+    \textbf{Runtime}
+    
+    The time complexity of filling up $\textsc{LRMb}[v]$ is $\mathcal{O}(|V|\times |L|)$, since we have a $|V|$ table whose transitions take $|L|$ time.
+
+    \vspace{2mm}
+    Now, for \( \textsc{LRMb}_{L}[v][l] \), we have a \( |V| \times |L| \) table. However, each cell in this table doesn't just take constant time to fill, as it appears to depend on the outdegree for each vertex \( v \) due to the sum over \( C_v \) in the recursive formula. At first glance, this may suggest a time complexity of \( \mathcal{O}(|V| \times |L| \times D) \), where $D$ is the outdegree of the graph.
+    
+    \vspace{2mm}
+    However, for any graph, the sum of the outdegrees for all vertices is \( 2(|V| - 1) \), which is \( \mathcal{O}(|V|) \)\footnote{known as the \textit{handshaking lemma}.}. Therefore, the time spent on summing over all children for all vertices is effectively \( \mathcal{O}(|V|) \), when amortized over the entire table. 
+    Thus, the overall time complexity for \( \textsc{LRMb}_{L}[v][l] \) is actually \( \mathcal{O}(|V| \times |L|) \).
+
+    \vspace{2mm}
+    Consequently, the overall time complexity for the entire algorithm is \( \mathcal{O}(|V| \times |L|) \).
+
+\pagebreak
+\subsection*{Problem 1b Solution}
+    \textbf{Design}
+     First, run DFS to obtain a set of all distinct labels $L$. Now in words, we define
+        \begin{itemize}
+            \item $\textsc{LRMho}_{L}[v][l]$ as the \textbf{size of the largest heap-ordered rooted minor of $T_{v}$ such that all of $v$'s children have label less than $l$.} 
+            \item $\textsc{LRMho}[v]$ as the \textbf{size of the largest heap-ordered rooted minor of $T_{v}$}. By definition, $\textsc{LRMho}[v] = \max_{l \in L} \textsc{LRMho}_{L}[v][l]$.
+        \end{itemize}
+    We perform a post-order traversal of $T$, armed with the following recursive formula:
+        $$\textsc{LRMho}_{L}[v, l] = 1 + \sum_{c \in C_{v}} 
+        \begin{cases}
+            \textsc{LRMho}[c] & \text{if $\ell(c) < l$} \\
+            \textsc{LRMho}_{L}[c][l] - 1 & \text{otherwise}.
+        \end{cases}$$
+        
+    \vspace{2mm}
+    \textbf{Correctness}
+    
+        A valid explanation is as follows: The term "1" at the beginning of the formula accounts for the vertex \( v \) itself. Next, we go through each child \( c \) of the vertex \( v \) and accumulate the sizes of the largest heap-ordered rooted minors rooted at these children into the sum. There are two cases to consider:
+        
+        \begin{Cases}
+            \item If the label \( \ell(c) \) of a child \( c \) is less than the target label \( l \), that means this subtree rooted at \( c \) satisfies our 'heap-ordered' condition for this case. We can safely include the entire subtree rooted at \( c \) in our rooted minor. Hence, we add \(\textsc{LRMho}[c]\) to our sum.
+            \item If the label \( \ell(c) \) of the child \( c \) does not match the target label \( l \), then \( c \) itself cannot be included in this heap-ordered rooted minor (as it would break the 'heap-ordered' requirement for \( v \)). However, we still have a chance to include some or all of the heap-ordered rooted minor that is rooted at \( c \) and satisfies the heap-ordering among its own children. That's what \(\textsc{LRMho}_{L}[c][l]\) is. Since we can't include \( c \) itself, we have to subtract 1: thus, we add \( \textsc{LRMho}_{L}[c][l] - 1 \) to our sum.
+        \end{Cases}
+         We use post-order traversal to ensure that all the necessary values for the children are available when calculating the value for the parent. Our final answer is given by $\textsc{LRMho}[v_{\text{root}}]$.
+
+    \vspace{2mm}
+    \textbf{Runtime}
+    
+    The time complexity of filling up $\textsc{LRMho}[v]$ is $\mathcal{O}(|V|\times |L|)$, since we have a $|V|$ table whose transitions take $|L|$ time.
+
+    \vspace{2mm}
+    As in part (a), we claim that the time complexity of filling up \( \textsc{LRMho}_{L}[v][l] \) is \( \mathcal{O}(|V| \times |L|) \). This is because we have a $|V| \times |L|$ table, and each \textit{column} of this table takes time \( \mathcal{O}(|V|)\) time to fill.
+
+    \vspace{2mm}
+    Consequently, the overall time complexity for the entire algorithm is \( \mathcal{O}(|V| \times |L|) \).
+
+\pagebreak
+\subsection*{Problem 1c Solution}
+    \textbf{Design}
+        In words, we define
+        \begin{itemize}
+            \item $\textsc{IsGood}[v][p]$ as a boolean value representing for each node, given that these parents are excluded, is this node good? Meaning is it within this range
+            \item $\textsc{LRMbso}[v][L]$ as the \textbf{number of nodes in $T_{v}$ that will be present the largest binary-search-ordered rooted minor of $T$}.
+        \end{itemize}
+
+    We first build $\textsc{GoodRange}[v]$. For every vertex, store a hashmap of all the parents of $v$. 
+
+
+
+        
+    We perform a post-order traversal of $T$, armed with the following recursive formula:
+    \begin{align*}
+        \textsc{LRMbso}[v] = 1 &+ \max\{\textsc{LRMbso}[c] : c \in V_{v_{l}} \text{ and } \ell(c) < \ell(v)\} \\
+        & + \max\{\textsc{LRMbso}[c] : c \in V_{v_{r}} \text{ and } \ell(c) > \ell(v)\},
+    \end{align*}
+    $$\textsc{LRMbso}[v] = 1 + \sum_{c \in C_{v}} 
+    \begin{cases}
+        \textsc{LRMbso}[c] & \text{if $\textsc{IsGood}[v]$} \\
+        \textsc{LRMbso}_{L}[c][l] - 1 & \text{otherwise}.
+    \end{cases}$$
+    
+    \vspace{2mm}
+    \textbf{Correctness}
+
+    \vspace{2mm}
+    \textbf{Runtime}
+    Consequently, the overall time complexity for the entire algorithm is \( \mathcal{O}(|V| \times |L|) \).
+
+    \pagebreak
+    \subsection*{Problem 1d Solution}
+     Modification of part (c). I suspect depending on the approach they used in part (c), this will either be very hard for them or very easy.
+
+      \pagebreak
+    \subsection*{Problem 1e Solution}
+     Here we discuss the solution to part (e).
+
+    \begin{tcolorbox}
+        So I think many students used DP within DP, which is basically what this is. But, hopefully this solution is a bit more elegant and displays sort of an \textit{intuition} about how a student may come to this solution.
+    \end{tcolorbox}
+
+        \textbf{First Pass Solution (Lots of students had something like this in office hours)}
+        
+            So a student may start out with saying ok, let's define 
+            \begin{itemize}
+                \item $\textsc{LCS}(u, v)$ as \textbf{the largest common rooted minor between the trees rooted at $u$ and $v$.}
+            \end{itemize}
+            And then a student may be like ok, let's think about this as Longest Common Subsequence, and then after a bit of thinking they develop the recursive case
+            $$\textsc{LCS}(u, v) = 
+            \begin{cases}
+                \max\left\{\substack{\max_{c \in C_{u}}\textsc{LCS}(u, c),\\ \max_{c \in C_{v}}\textsc{LCS}(c, v)\}}\right\} & \text{if $\ell(u) \ne \ell(v)$} \\
+                1 + \textbf{???} & \text{if $\ell(u) = \ell(v)$}
+            \end{cases}$$
+            Uh oh, we are stuck! If they match, students could not figure out what to do! Many students think that it can only be done in exponential time. Most students that have submitted solved another DP problem and substituted it in for \textbf{???}, which is definitely a correct approach. But now, let's maybe think about doing it in just one DP problem instead, by thinking of trees as \textit{balanced sequences}.
+
+        \textbf{Refined Solution}
+
+        \begin{tcolorbox}
+            Disclaimer: here I took the term \textit{balanced sequence} from many (similar but not identical) research papers, but the rest of the idea is mine. I think the term comes from balanced parentheses.
+
+            \vspace{2mm}
+            My motivation for this solution came up with a way to translate trees into lists. Thanks to Rahi for unordered inspiration.
+        \end{tcolorbox}
+
+        We need some way to convert a rooted labeled tree into a rooted labeled sequence. Once we do this.
+        
+        \begin{enumerate}
+            \item Let $\textsc{LCSb}(s, t)$ represent the longest common rooted tree sequences between two rooted tree sequences s and t. Note that every balanced sequence has a corresponding label, which corresponds to the label of the root.
+
+            Suppose we have a sequence $s$ like \textcolor{red}{0}\textcolor{blue}{010101}\textcolor{red}{1}\textcolor{green}{00010111}. First define \\
+            $\textsc{FCS}(s)$ as everything that's blue. I'm defining $\textsc{OCS}(s)$ as everything that's red.
+
+            Our recursive case is
+            $$\textsc{LCSb}(s, t) =
+            \begin{cases}
+                \max\left\{\substack{\textsc{LCSb}(u, c),\\ \textsc{LCS}(c, v)\}}\right\} & \text{if $\ell(u) \ne \ell(v)$} \\
+                1 + \textsc{LCSb}(\textsc{FCS}(s), \textsc{FCS}(t)) + \textsc{LCSb}(\textsc{OCS}(s), \textsc{OCS}(t)) & \text{if $\ell(s) = \ell(t)$}
+            \end{cases}$$
+            \item Return $\textsc{LCSb}[root_{1}, root_{2}]$
+            \item We have a $n_{1}^{2} \times n_{2}^{2}$ dimensional table whose transitions take $\mathcal{O}(1)$ time. So our complexity is $\mathcal{O}(n_{1}^{2} \times n_{2}^{2})$.\footnote{This can be reduced more, cause we are not really filling up all $n_{1}^{2} \times n_{2}^{2}$, but this is good enough}
+            For labeled case, replace zeroes with labels.
+        \end{enumerate}
+
+
+% \section*{Appendix}
+%     \begin{algorithm}[H]
+%         \caption{\textsc{MaxIncreasingIndexSum}$(A, B)$}
+%         \begin{algorithmic}
+%             \State $b_{\text{idx}} = \text{len}(B) - 1$
+%             \State $a_{\text{idx}} = \text{len}(A) - 2$
+%              \State $max_b \gets b_{\text{idx}}$
+%             \State $max_s \gets A[\text{length of } A - 2] + B[max_b]$
+        
+%             \For{$i$ from $\text{length of } A - 3$ \textbf{down to} $0$}
+%                 \If{$B[i + 1] > B[max_b]$}
+%                     \State $max_b \gets i + 1$
+%                 \EndIf
+        
+%                 \If{$A[i] + B[max_b] > max_s$}
+%                     \State $max_s \gets A[i] + B[max_b]$
+%                     \State $a_{\text{idx}} \gets i$
+%                     \State $b_{\text{idx}} \gets max_b$
+%                 \EndIf
+%             \EndFor
+%         \end{algorithmic}
+%         \end{algorithm}
+%     Part (e) can be seen as a variant of the \textit{tree edit distance} problem. Recall the edit distance problem, when we generalize to tree it becomes. Tai et.\ al  https://www.scopus.com/record/display.uri?eid=2-s2.0-0018491659&origin=inward&txGid=91e99d37d3c93c62ccbffb2d7192dafe first proposed a $O(n^{6})$ algorithm, then after a series of improvements, Demaine!\ et.\ al https://dl.acm.org/doi/abs/10.1145/1644015.1644017?casa_token=Xl8ia3ZoxPYAAAAA:mLfKQXSjll8guCkqQbLd9f3uRnEXp-kLw_fbmwEegFJ-Bwc7mDxmKzNq5l18iygObBz_wYBLPbtU_w published a $O(n^{3})$.
+
+%     \vspace{2mm}
+%     Part (f) now relaxes it to undordered trees. A comprehensive survey of this problem and others can be found in Akutsu et al. https://www.sciencedirect.com/science/article/pii/S0304397514007749#br0020
+
+\end{document}
