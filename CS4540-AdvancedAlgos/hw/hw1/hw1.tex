@@ -1,0 +1,149 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+% %Cases Environment
+% \newlist{Cases}{enumerate}{3}
+% \setlist[Cases]{leftmargin = .25in, label = {Case \arabic*.}, topsep = 0.01in, itemsep = 0.04in, itemindent = .5in, parsep = 0in}
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 1}
+\newcommand{\hmwkDueDate}{Jan.\ 24, 2024}
+\newcommand{\hmwkDueTime}{2:29pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{Author: Sarah Cannon}
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy}
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        \footnotesize
+        \textbf{Submit Q1 as your submission for hw1part1. Submit the rest of the homework as your submission for hw1part2}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\subsection*{\Exercise}
+    \textit{(KT Chapter 1, Exercise 1)} True or false?  (If true, give a brief explanation, if false, give a counterexample): 
+    
+    In every instance of the Stable Matching Problem, there is a stable matching containing a pair $(m, w)$ such that $m$ is ranked first on the preference list of $w$ and $w$ is ranked first on the preference list of $m$.
+
+\subsection*{\Exercise}
+    \textit{(KT Chapter 1, Exercise 2)}  True or false? Consider an instance of the Stable Matching Problem in which there exists a man $m$ and a woman $w$ such that $m$ is ranked first on the preference list of $w$ and $w$ is ranked first on the
+    preference list of $m$.  Then in every stable matching $S$ for this instance, the pair $(m, w)$ belongs to $S$.
+
+\subsection*{\Exercise}
+    \textit{(KT Chapter 1, Exercise 3)} There are many other settings in which we can ask questions related to some type of ``stability'' principle.  Here's one, involving competition between two enterprises.
+
+    \vspace{2mm}
+    Suppose we have two television networks whom we'll call $A$ and $B$.  There are~$n$ prime-time
+    programming slots, and each network has $n$ TV shows.  Each network wants to devise a schedule -- an assignment of each show to a distinct slot -- so as to attract as much market share as possible.
+
+    \vspace{2mm}
+    Each show has a fixed rating, which is based on the number of people who watched it last year;  we'll assume that no two shows have exactly the same rating.  A network {\it wins} a given time slot if the show that it schedules for that time slot has a larger rating than the other network schedules for that time slot.  The goal is to win as many time slots as possible.
+
+    \vspace{2mm}
+    We'll say a pair of schedules $(S, T)$ is {\it stable} if neither network can unilaterally change its own schedule and win more time slots.  
+
+    \vspace{2mm}
+    For every set of TV shows and ratings, is there always a stable pair of schedules?  Resolve this question by doing one of two things: 
+    
+    \begin{enumerate}[label=\arabic*.]
+        \item Give an algorithm that, for any TV shows and associated ratings, produces a pair of stable schedules; or
+        \item Give an example of TV shows and ratings for which there is no stable pair of schedules.  
+    \end{enumerate}
+    
+\subsection*{\Exercise}
+    Give an input to the Stable Marriage Problem with $n$ men and $n$ women that has a unique stable pairing.   Now give an input with $n$ men and $n$ women that has an exponential number (in $n$) of stable pairings.
+
+\subsection*{\Exercise}
+    Let $[m]$ denote the set $\{0,1,\dots, m-1\}$.  For each of the following families of hash functions, say whether it is 2-universal or not, and specify how many random bits are needed to sample a hash function from the family, and then justify your answer.
+    \begin{enumerate}
+        \item $H_a = \{h(x_1,x_2)=a_1 x_1 + a_2 x_2 \ ({\rm mod} \ m) \ | \ a_1, a_2 \in [m]\}$, where $m$ is some fixed prime.  (Note that for each $h\in H_a$ we have $h: [m]^2 \rightarrow [m]$, i.e., it maps a pair of integers in $[m]$ to a single integer in $[m]$.)
+        \item $H_b = \{h(x_1,x_2) = a_1x_1 + a_2 x_2 \ ({\rm mod} \  m) \} : a_1, a_2 \in [m]\}$, where $m=2^k$ is some fixed power of two.
+        \item The set of all functions $f: [m]\rightarrow [m-1]$.
+    \end{enumerate}
+
+\end{document}

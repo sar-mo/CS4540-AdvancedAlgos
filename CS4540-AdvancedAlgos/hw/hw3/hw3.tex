@@ -1,0 +1,142 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\var}[1]{\operatorname{var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 3}
+\newcommand{\hmwkDueDate}{Feb.\ 7, 2024}
+\newcommand{\hmwkDueTime}{11:59pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{}
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy} 
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course.
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+% \subsection*{\Exercise}
+%     A three-way cut is a set of edges such that removing it from the graph yields three connected components. Modify the min-cut algorithm discussed in class to get a three-way min cut. Compute the probability of success of your design and discuss how to boost it to be 1 - $o(1)$.
+
+%     \vspace{2mm}
+%     \textit{Hint: Stop looking stuff up, you don't need to! Use the process from class (taking special care near the end.)}
+
+\subsection*{\textcolor{red}{\Exercise}}
+  \textit{(KT Chapter 13, Exercise 12)}  Consider the following analogue of Karger's algorithm for finding minimum $s-t$ cuts.  We will contract edges iteratively using the following randomized procedure.  In a given iteration, let $s$ and $t$ denote the possibly contracted nodes that contain the original nodes $s$ and $t$, respectively.  To make sure that $s$ and $t$ do not get contracted, at each iteration we delete any edges connecting $s$ and $t$ and select a random edge to contract among the remaining edges.  Give an example to show that the probability that this method finds a minimum $s-t$ cut can be exponentially small.
+
+\subsection*{\Exercise}
+  Consider the online paging problem in which the access graph $G$ is a line on $k+1$ pages. (Recall that in every legal input, every page must be a neighbor of the previous one; the first page can be arbitrary.) Recall that LRU (least recently used) has competitive ration $1$ on this graph. Show that the competitive ratio on $G$ of the FIFO paging algorithm is $k$, the size of the cache. This should be a competitive ratio of $\Omega(k)$.
+
+\subsection*{\Exercise}
+  Consider a paging algorithm that, on a page fault, just throws out a random page from the cache. Prove that the competitive ratio of this algorithm is $\Omega(k)$.
+
+\subsection*{\Exercise}
+    Suppose you are standing next to a long fence that extends as far as you can see in either direction. You want to cross the fence and you know that somewhere it has a hole in it, but you don't know whether the hole is to your left or to your right, or how far away the hole is. We can model the problem as follows: you are initially located at the origin on the real line. The hole is at some unknown positive or negative integer coordinate h (why can we assume h is an integer?). You can move left or right at cost equal to the distance moved, and the game continues until you reach h. We will consider the goal of minimizing the competitive ratio: i.e., the ratio of the distance traveled and $\abs{h}$.
+
+  \begin{enumerate}
+    \item Give a deterministic strategy with competitive ratio 9. (Hint: Consider walking 1 unit to the right, 2 units to the left, 4 to the right, 8 to the left, etc.)
+    \item Describe and analyze a randomized algorithm whose competitive ratio is at most 7. (I.e. Show that for any h, the expected cost of the algorithm is at most $7\abs{h}$).
+    \item   Give a randomized algorithm that is better than 7 competitive. It does not have to be optimal, any $(7-\varepsilon)$-competitive algorithm will suffice.
+  \end{enumerate}
+\end{document}

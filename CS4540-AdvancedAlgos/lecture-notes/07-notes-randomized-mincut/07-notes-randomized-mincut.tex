@@ -1,0 +1,279 @@
+\documentclass[14pt]{extreport}
+\usepackage[T1]{fontenc}
+\usepackage[left=1in, right=1in, top=1in, bottom=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{matrix, positioning}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Stats
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\var}[1]{\operatorname{var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+
+%Cases Environment
+\newlist{Cases}{enumerate}{3}
+\setlist[Cases]{leftmargin = .25in, label = {Case \arabic*.}, topsep = 0.01in, itemsep = 0.04in, itemindent = .5in, parsep = 0in}
+
+%Custom Title Fields
+\newcommand{\lectTitle}{Lecture 7 Notes}
+\newcommand{\lectTime}{March 7, 2022}
+\newcommand{\lectClass}{Advanced Algorithms}
+\newcommand{\lectClassInstructor}{Dana Randall}
+\newcommand{\lectSection}{Spring 2024}
+\newcommand{\lectAuthorName}{Sarthak Mohanty, Aadit Trivedi}
+
+\title{
+    \vspace{1.75in}
+    \textbf{\lectClass:\\ \lectTitle}\\
+    \vspace{0.1in}\large{\textit{\lectClassInstructor\ \lectSection}}
+    \vspace{2in}
+    \author{\textbf{Sarthak Mohanty} \\ \textbf{Aadit Trivedi}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\subsection*{Randomized Min-cut}
+    Given some connected graph $G = (V, E)$, a \textbf{cut} partitions the vertices into two sets: $\mathcal{S}$ and $\mathcal{T}$.
+
+    \vspace{4mm}
+
+    One of the motivating questions here is what is the minimum \# of edges whose removal disconnects the graph?
+
+    \vspace{4mm}
+
+    We will not show why here, but one reason why the minimum-cut problem is of interest is that it is tightly connected to the maximum-flow problem. By the max-flow min-cut theorem, the value of the maximum flow from a source $s$ to a sink $t$ is equal to the capacity of the minimum $s$-$t$ cut.
+
+    \vspace{4mm}
+
+    Thus, one natural algorithm for solving the global min-cut problem is as follows: Pick some source vertex $s$, then for every other vertex $t \ne s$, compute the minimum $s$-$t$ cut. Choose the minimum of all these values.
+
+    \vspace{4mm}
+
+    However, this requires $\mathcal{O}(n)$ calls to the max-flow algorithm. Can we do better? In fact, we can! We will now discuss Karger's algorithm, a randomized algorithm for computing the min-cut.
+
+    \vspace{4mm}
+
+    The algorithm is as follows.
+    \begin{itemize}
+        \item Repeat until two supernodes remain.
+        \begin{itemize}
+            \item Choose an edge at random $e = (u,v)$.
+            \item Contract this edge, making $[uv]$ a supernode. Remove any self loops and keep all multi-edges.
+        \end{itemize}
+    \end{itemize}
+
+    
+    \begin{figure}
+        \centering
+        \includegraphics{lecture_notes/karger_illustration.png}
+        \caption{Karger's Algorithm at work (taken from \href{https://www.cs.princeton.edu/courses/archive/fall13/cos521/lecnotes/lec2final.pdf}{here}.)}
+    \end{figure}
+
+    Let us note some observations.
+    \begin{itemize}
+        \item Note that there can be potentially many min cuts. An example of a graph that has a unique min cut, on the other hand, is two connected graphs connected with a single edge.
+        \item The min cut size is at most the minimum degree.
+    \end{itemize}
+
+    This algorithm always returns some cut. But now, we propose the question: Is this cut a minimum cut? We argue that this algorithm gives us a minimum cut with some nontrivial probability.
+
+    \vspace{4mm}
+
+    So, what's the probability that we succeed in finding the min cut with this randomized algorithm? Fix some min cut $C$ of size $k$. The only way this fixed cut is destroyed is if we contract one of the $k$ edges crossing $C$.
+
+    \vspace{4mm}
+
+    Since the min cut has size $k$, every vertex has degree at least $k$. Thus, when there are $n$ vertices remaining, there are at least $\frac{kn}{2}$ edges remaining.
+
+    \vspace{4mm}
+
+    What is the probability that $C$ survives the first contraction? This is equal to $1 - \Pr{\text{Failure}}$. The probability of failure is at most
+    $$
+    \frac{k}{kn/2} = \frac{2}{n}.
+    $$
+    Thus, the probability that $C$ survives the first contraction is at least
+    $$
+    1 - \frac{2}{n}.
+    $$
+    More generally, when there are $i$ supernodes remaining, the contracted graph still has min cut at least $k$, as long as we have not contracted an edge of $C$. Therefore, every supernode has degree at least $k$, so there are at least $\frac{ki}{2}$ edges remaining. Thus, the probability that the next contraction destroys $C$ is at most
+    $$
+    \frac{k}{ki/2} = \frac{2}{i}.
+    $$
+
+    Finally, we can calculate the probability that $C$ survives every contraction, as follows:
+    \begin{align*}
+        \Pr{\text{$C$ survives}}
+        &\geq \prod_{i = 3}^{n} \left(1 - \frac{2}{i}\right) \\
+        &= \prod_{i = 3}^{n} \frac{i - 2}{i} \\
+        &= \frac{1}{3} \cdot \frac{2}{4} \cdot \frac{3}{5} \cdots \frac{n - 2}{n} \\
+        &= \frac{2}{n(n - 1)}.
+    \end{align*}
+
+    Thus, one run of Karger's algorithm outputs a fixed minimum cut with probability at least
+    $$
+    \frac{2}{n(n - 1)} = \frac{1}{\binom{n}{2}}.
+    $$
+
+    This also implies that an $n$-vertex graph has at most $\binom{n}{2}$ distinct minimum cuts. Indeed, Karger's algorithm outputs exactly one cut, and every minimum cut is output with probability at least $\frac{1}{\binom{n}{2}}$. Therefore, there can be at most $\binom{n}{2}$ minimum cuts.
+
+\subsection*{Boosting the probability of success}
+    Let
+    $$
+    p_0 \geq \frac{2}{n(n - 1)}
+    $$
+    be the probability that one run of Karger's algorithm succeeds. If we run the algorithm independently $N$ times and keep the smallest cut found, then the probability of success is
+    $$
+    P^* = 1 - (1 - p_0)^N.
+    $$
+
+    \vspace{4mm}
+
+    Therefore,
+    $$
+    P^* \geq 1 - \left(1 - \frac{2}{n(n - 1)}\right)^N.
+    $$
+
+    \vspace{4mm}
+
+    We use the approximation
+    $$
+    \lim_{n \to \infty} \left(1 + \frac{\alpha}{f(n)}\right)^{f(n)} = e^\alpha
+    $$
+    as long as $\lim_{n \to \infty} f(n) = \infty$.
+
+    \vspace{4mm}
+
+    Now we have:
+    \begin{align*}
+        N &= n(n - 1), & P^* &\approx 1 - e^{-2}, \\
+        N &= n(n - 1)\ln(n), & P^* &\approx 1 - e^{-2\ln(n)} = 1 - n^{-2}, \\
+        N &= cn(n - 1)\ln(n), & P^* &\approx 1 - e^{-2c\ln(n)} = 1 - n^{-2c}.
+    \end{align*}
+
+    Thus, if we repeat the algorithm $cn(n - 1)\ln(n)$ times, then the probability of failure is at most approximately $n^{-2c}$.
+
+    \vspace{4mm}
+
+    \textbf{Runtime:} Using a straightforward implementation, one run takes $O(mn)$ time. Therefore, after
+    $$
+    N = O(n^2 \log n)
+    $$
+    independent runs, the total runtime is
+    $$
+    O(Nmn) = O(mn^3 \log n).
+    $$
+
+\subsection*{Karger-Stein computation}
+
+    The Karger-Stein algorithm is an algorithm that computes the minimum cut of a graph with high probability. It improves the original Karger's algorithm by using a recursive approach.
+
+    \vspace{4mm}
+
+    The key idea is that early contractions are relatively safe, while later contractions are much more dangerous. So instead of contracting all the way down to $2$ vertices, we contract only down to roughly $\frac{n}{\sqrt{2}}$ vertices and then recurse twice.
+
+\subsubsection*{Algorithm}
+    The algorithm is as follows:
+
+    \begin{enumerate}
+        \item If the graph has at most some constant number of vertices, compute the minimum cut directly.
+        \item Let
+        $$
+        t = \left\lceil \frac{|V|}{\sqrt{2}} + 1 \right\rceil.
+        $$
+        \item Independently run random contraction twice, each time contracting $G$ down to $t$ vertices. Call the resulting graphs $G_1$ and $G_2$.
+        \item Recursively apply the algorithm to $G_1$ and $G_2$.
+        \item Return the smaller of the two cuts found.
+    \end{enumerate}
+
+\subsubsection*{Computation}
+
+    The improvement of the Karger-Stein algorithm comes from its recursive approach. Instead of running one contraction process all the way to $2$ vertices, it branches into two recursive calls after contracting to about $\frac{n}{\sqrt{2}}$ vertices.
+
+    \vspace{4mm}
+
+    The runtime recurrence is
+    \begin{equation}
+        T(n) = 2T\left(\left\lceil \frac{n}{\sqrt{2}} \right\rceil + 1\right) + O(n^2),
+    \end{equation}
+    where the $O(n^2)$ term accounts for the random contractions used to reduce the graph size.
+
+    \vspace{4mm}
+
+    To solve this recurrence, note that each recursive call has size roughly $\frac{n}{\sqrt{2}}$, and there are two recursive calls. Thus, each level of recursion costs
+    $$
+    O(n^2),
+    $$
+    since
+    $$
+    2 \left(\frac{n}{\sqrt{2}}\right)^2 = n^2.
+    $$
+    The depth of recursion is $O(\log n)$, so the total runtime is
+    $$
+    T(n) = O(n^2 \log n).
+    $$
+
+    This is a significant improvement over the simple repeated version of Karger's algorithm, which takes $O(mn^3 \log n)$ time using a straightforward implementation.
+
+    % https://www.cs.toronto.edu/~anikolov/CSC473W20/Lectures/Karger-Stein.pdf
+
+\end{document}

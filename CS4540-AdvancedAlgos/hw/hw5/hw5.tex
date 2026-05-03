@@ -1,0 +1,176 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\Var}[1]{\operatorname{Var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+\newcommand{\oline}[1]{\overleftrightarrow{#1}}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 5}
+\newcommand{\hmwkDueDate}{Mar.\ 06, 2024}
+\newcommand{\hmwkDueTime}{11:59pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{}
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy} 
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course.
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+
+% \subsection*{\Exercise}
+%  4.  For the paging problem, prove that when there are exactly $k+1$ distinct
+%   items in memory, then the Randomized Marking algorithm is $H_k$ competitive.
+
+% \subsection*{Solution}
+%   Recall we proved in class that the Randomized Marking algorithms is $2H_k$ competitive.
+%   Just as we did in that proof, here we'll split the request sequence in the usual way into phases,
+%   and each phase is contains $k$ distinct elements (requests).
+%   Let $l_i$ be the number of new items seen in this phase that were not in the
+%   previous phase, and let $q_i$ be the number of faults that OPT would make in
+%   that phase.
+
+%   There are two parts to the proof that Randomized Marking is $2H_k$
+%   competitive (see class notes): $$RMARK(\sigma) \leq H_k
+%   \sum_i l_i $$ $$OPT(\sigma) = \sum_i q_i \geq 
+%   \half\sum_i l_i.$$ Putting these two together, we get that $RMARK(\sigma)
+%   \leq 2H_k OPT(\sigma)$.
+
+%   We will improve the second inequality, and show that when there are exactly
+%   $k+1$ elements in memory, $OPT(\sigma) = \sum_i q_i \geq \sum_i l_i$. Note
+%   that since we always have $k$ elements in memory at the start of a phase,
+%   $l_i = 1$ for all $i$. Also, OPT must fault at least once per phase, so $q_i = 1$ for all $i$.
+%   Thus $OPT(\sigma) = \sum_i 1 = \sum_i l_i$.
+%   Thus, we get that $RMARK(\sigma) \leq H_k OPT(\sigma)$ as desired.
+
+\subsection*{\Exercise}
+  Let us roll a fair 6-sided die $n$ times. Give the best upper bound you can find on the probability that the sum of the rolls is at least $5n$.
+
+\subsection*{\Exercise}
+    We are trying to predict the outcome of an election. Suppose that there are two candidates and the population of $N$ people has exactly $N/3$ supporters of candidate 1 and the rest support the second candidate. If we take a uniform sample of $n$ people from this population to poll (with replacement), what is the probability that the majority of this $n$ prefer candidate 1? How large should $n$ be to guarantee that the probability that candidate 2 wins (in our sample) is at least 4/5 according to Markov's inequality? Can you get a better bound on $n$ using Chebyshev's inequality? Chernoff bounds?
+
+\subsection*{\Exercise}
+    Consider the following sorting algorithm for $n$ real numbers chosen independently and uniformly from the range $[0,1)$. Place each number $a_i$ in one of the buckets $B_1, B_2, \ldots B_n$ as follows: $a_i$ goes in bucket $B_j$ if $a_i \in \left[\frac{j-1}{n},\frac{j}{n}\right)$. Sort each bucket, (using your favorite sorting algorithm) and output the sorted list.
+    \begin{enumerate}
+        \item For any integer $0 < M < n$, show that the probability that bucket $B_i$ has at least $M$ entries is at most $1/M$.
+        \item Using Chebychev's inequality, give an upper bound on the probability that there exists some bucket with at least $M$ entries.
+        \item Can you do better using Chernoff bounds? Give a bound on the probability that there exists some bucket with at least $M$ entries.
+
+        \vspace{3mm}
+        \textbf{Note:} Check the restrictions on the Chernoff bound we presented in the notes carefully. Now observe that $\ln(1 + \delta) > \frac{2\delta}{2 + \delta} $ for all \underline{$\delta > 0$}. This implies that $$\delta - (1 + \delta) \ln(1 + \delta) \le \frac{-\delta^{2}}{2 + \delta}.$$
+    \end{enumerate}
+
+\subsection*{\Exercise}
+    We are given a set of points $\{p_i\}$ on the plane, and we are interested in finding the pair of points that are the farthest apart (called the {\em diameter}). There is an obvious $O(n^2)$ algorithm, but we want an $O(n\log n)$ algorithm.  Prove the following statements and then use them to construct a fast algorithm.
+
+\begin{enumerate}
+    \item Prove that the pair of points that are farthest apart are both on the convex hull. Thus we can reduce our search to finding the furthest pair of points on a convex polygon:  $p_1,p_2,\ldots, p_n,$  (given in order going around the polygon). 
+    \item For two points $p_i,p_j$, we construct the lines $l$ through $p_i$ and $l'$ through $p_j$ so that $l,l'$ are perpendicular to $\overleftrightarrow{p_i,p_j}$. We say that $p_i$ and $p_j$ are \emph{antipodal} if these lines $l,l'$ both do not pass through the convex hull. Show that the pair of points that are the largest distance apart must be antipodal.
+    \item Say we are given an edge of the convex hull: $e = (p_1, p_2)$. Give a method to find the point $p_i$ farthest from the line $\overleftrightarrow{p_1,p_2}$. Your method should take $O(i)$ time or faster (not $O(n)$).  (Hint: you'll need the slope of $\overleftrightarrow{p_1,p_2}$, and some basic vector knowledge.)
+    \item  Consider adjacent points $p_n,p_1,p_2$, and say that the point farthest from line $\overleftrightarrow{p_n,p_1}$ is $p_i$, and the point farthest from line $\overleftrightarrow{p_1,p_2}$ is $p_j$. Show that $j \geq i$, and the only possible points that are antipodal to $p_1$ are $p_i, p_{i+1}, \ldots p_j$. (\textit{Hint:} Why are all other points definitely not antipodal?) Now if $p_k$ is farthest from line $\overleftrightarrow{p_2,p_3}$, what about all possible points antipodal to $p_2$?
+    \item  Put it all together: Create an algorithm that takes $O(n \log n)$ time to find the pair of pair of points that are farthest apart, with proof of correctness.  Your algorithm should take $O(n)$ steps after finding the convex hull.
+    
+    \vspace{3mm}\textit{Hint:} Keep one pointer at $p_1$, and another at $p_i$ as in part d. Alternate updates of $p_i$ and $p_1$ in such a way that all antipodal pairs are considered.  You can't use part c directly, but the idea should help.
+\end{enumerate}
+
+\end{document}

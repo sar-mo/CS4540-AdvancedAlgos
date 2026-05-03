@@ -1,0 +1,311 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black!30!Dandelion,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\Var}[1]{\operatorname{Var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+% rainbow text (based on the gradient-text package)
+\makeatletter
+\ExplSyntaxOn
+\clist_new:N\l_gtext_First_clist
+\clist_new:N\l_gtext_Last_clist
+\int_new:N\l_gtext_MaxIndex_int
+\int_new:N\l_gtext_Ratio_int
+\newcommand{\gr@dient}[8]{
+  \int_set:Nn\l_gtext_MaxIndex_int{\int_eval:n{\str_count:n{#1}}}
+  \int_step_inline:nnn{1}{\l_gtext_MaxIndex_int}{
+      \exp_args:Ne\str_if_eq:nnTF{\str_item:Nn{#1}{##1}}{~}{}{
+        \int_set:Nn\l_gtext_Ratio_int{\int_eval:n{\l_gtext_Ratio_int+1}}
+      }
+        \color_select:nn{#8}{
+          \int_eval:n{(\int_use:N\l_gtext_Ratio_int*#5+(\l_gtext_MaxIndex_int-##1)*#2)/\l_gtext_MaxIndex_int},
+          \int_eval:n{(\int_use:N\l_gtext_Ratio_int*#6+(\l_gtext_MaxIndex_int-##1)*#3)/\l_gtext_MaxIndex_int},
+          \int_eval:n{(\int_use:N\l_gtext_Ratio_int*#7+(\l_gtext_MaxIndex_int-##1)*#4)/\l_gtext_MaxIndex_int}
+      }\str_item:Nn{#1}{##1}
+  }
+}
+
+\NewDocumentCommand\gradient{mmmm}{{
+  \clist_set:Nn\l_gtext_First_clist {#3}
+  \clist_set:Nn\l_gtext_Last_clist {#4}
+  \gr@dient{#2}
+  {\clist_item:Nn\l_gtext_First_clist{1}}
+  {\clist_item:Nn\l_gtext_First_clist{2}}
+  {\clist_item:Nn\l_gtext_First_clist{3}}
+  {\clist_item:Nn\l_gtext_Last_clist{1}}
+  {\clist_item:Nn\l_gtext_Last_clist{2}}
+  {\clist_item:Nn\l_gtext_Last_clist{3}}
+  {#1}
+}}
+\ExplSyntaxOff
+
+\NewDocumentCommand\gradientRGB{mmm}{
+  \gradient{RGB}{#1}{#2}{#3}
+}
+
+\NewDocumentCommand\gradientHSB{mmm}{
+  \gradient{HSB}{#1}{#2}{#3}
+}
+\makeatother
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 8}
+\newcommand{\hmwkDueDate}{April 10, 2024}
+\newcommand{\hmwkDueTime}{11:59pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{Sarthak Mohanty}
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy} 
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course. \textcolor{Maroon}{EC problems are all-or-nothing. Furthermore, you must complete EC problems alone (i.e.\ without external resources or collaborators)}
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+
+% https://epubs.siam.org/doi/10.1137/S0097539702402676
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\subsection*{\Exercise}
+    \textit{(Erickson)} Let \( G = (V, E) \) be an undirected graph, each of whose vertices is colored either \textcolor{red!100}{red}, \textcolor{ForestGreen!100}{green}, or \textcolor{RoyalBlue!100}{blue}. An edge in \( G \) is \textit{boring} if its endpoints have the same color, and \textit{interesting} if its endpoints have different colors. The \textit{most interesting 3-coloring} is the 3-coloring with the maximum number of interesting edges, or equivalently, with the fewest boring edges. Computing the most interesting 3-coloring is \textsf{NP-hard}, because the standard 3-coloring problem is a special case.
+    
+    \begin{enumerate}
+
+        \item Let \textsf{\gradient{RGB}{wow}{255,0,0}{0,0,255}}$(G)$ denote the number of interesting edges in the most interesting 3-coloring of \( G \). Suppose we assign each vertex in \( G \) a random color in \{red, green, blue\}. Prove that the expected number of interesting edges is at least \( \frac{2}{3} \textsf{\gradient{RGB}{wow}{255,0,0}{0,0,255}}(G) \).
+        \item Prove that with high probability, the expected number of interesting edges is at least \( \frac{1}{2} \textsf{\gradient{RGB}{wow}{255,0,0}{0,0,255}}(G) \). (\textit{Hint}: Use Chebyshev’s inequality. But wait... How do we know that we \textbf{can} use Chebyshev’s inequality?)
+        \item Let \textsf{\gradient{RGB}{snooze}{20,20,20}{200,200,200}}$(G)$ denote the number of boring edges in the most interesting 3-coloring of a graph \( G \). Prove that it is \textsf{NP-hard} to approximate \textsf{\gradient{RGB}{snooze}{20,20,20}{200,200,200}}$(G)$ within a factor of \( 2024^{2024} \).
+    \end{enumerate}
+
+    \begin{figure}[htbp]
+        \centering
+        \captionsetup{width=.8\linewidth}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \captionsetup{width=.8\linewidth}
+            \includegraphics[width=0.7\linewidth]{images/boring-3coloring.pdf}
+            \caption{A somewhat boring 3-coloring.}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \captionsetup{width=.8\linewidth}
+            \includegraphics[width=0.7\linewidth]{images/interesting-3coloring.pdf}
+            \caption{The most interesting 3-coloring.\footnotemark{}}
+            \label{fig:grid_cfg}
+        \end{subfigure}
+        \caption{Here \textsf{\gradient{RGB}{wow}{255,0,0}{0,0,255}}$(G) = 21$ and \textsf{\gradient{RGB}{snooze}{20,20,20}{200,200,200}}$(G) = 1$.}
+        \label{fig:max-interesting}
+    \end{figure}
+    \footnotetext{Unless I missed something and this graph is actually 3-colorable.}
+
+\subsection*{\Exercise \footnote{This could've been an exam problem!}}
+    Define a \textit{triangle matching} in an undirected graph \( G \) as a collection of vertex-disjoint triangles (cycles of length 3) in \( G \). A triangle matching is \textit{maximal} if it is not a proper subgraph of a larger triangle matching in the same graph.
+    \begin{enumerate}[label=(\alph*)]
+        \item Let \( M \) and \( M' \) be two arbitrary maximal triangle matchings in the same underlying graph \( G \). Prove that \( |M| \leq 3 \cdot |M'| \).
+        \item Finding the \textit{largest} triangle matching in a given graph is \textsf{NP-hard}. Describe and analyze a fast 3-approximation algorithm for this problem.
+        \item Finding the \textit{smallest maximal} triangle matching in a given graph is \textsf{NP-hard}. Describe and analyze a fast 3-approximation algorithm for this problem.
+    \end{enumerate}
+
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.35\linewidth]{images/triangle_matching.pdf}
+        \caption{A maximal (but not maximum!) triangle matching}
+        \label{fig:triangle-matching}
+    \end{figure}
+
+\subsection*{\Exercise}
+    Find a polynomial-time $4/3$-approximation to instances of metric-TSP where distances are either $1$ or $2$.
+
+    \vspace{2mm}
+    \textit{Hint:} The 2-matching problem (i.e. find a minimum weight subset of edges $M$ such that each node is adjacent to exactly $2$ edges in $M$) can be solved in polynomial time.
+
+\subsection*{\Exercise \ \textcolor{Maroon}{(EC)}}
+    You (hopefully) have heard of the \textbf{Maximum Independent Set (\textsf{MIS})} problem from previous courses, where the goal was to find an maximum-cardinality independent set $V'$ of vertices in some graph $G$. (If not, refer to the \hyperref[sec:appendix]{Appendix} for more information)
+
+    \vspace{3mm}
+    In the \textbf{Maximum Independent Set on Unit Disk Graph ($\textsf{MIS}_{\textsf{UDG}}$)} problem, we are given a set \( S \) of unit-diameter disks in the plane. The goal is to find a maximum-cardinality subset \( S' \subseteq S \) of disks, such that no two disks in \( S' \) overlap. (We say that disks that only touch on the boundary do not overlap). As with \textsf{MIS}, this problem is also $\textsf{NP-Complete}$.
+    
+    \begin{enumerate}
+       \item \textcolor{Maroon}{\textit{(8 pts)}} Consider the following greedy algorithm: start with \( S' = \emptyset \) and process the disks in \( S \) one-by-one, in any order. For each such disk \( C \), if \( S' \cup \{C\} \) is a feasible solution, then add \( C \) to \( S' \). What is the approximation factor of this algorithm? (Give the best upper bound you can.)
+        
+       \item \textcolor{Maroon}{\textit{(4 pts)}} Let \( 0 < \varepsilon < 1 \) be some constant. Assume that we are given a grid whose lines are spaced \( 1/\varepsilon \) units apart. Assume further that no disk in the input set \( S \) intersects the grid lines. Give a polynomial time algorithm for solving the problem exactly in this case.
+        
+       \item \textcolor{Maroon}{\textit{(8 pts)}} Derive and analyze a PTAS for the $\textsf{MIS}_{\textsf{UDG}}$ problem.
+
+       \vspace{2mm}
+        \textit{Hint:} Consider a grid with \textit{random offset}: Take a grid of lines spaced \( \frac{1}{2} \) apart, such that the origin is at the intersection of a horizontal and vertical grid line. Pick a shift/offset \( L \) uniformly at random from \( [0, \frac{1}{2}) \), and shift the grid vertically and horizontally by an distance \( L \). (Equivalently, consider the grid of spacing \( \frac{1}{2} \) such that the point \( (L, L) \) is at the intersection of two grid lines.) What is the probability that a disk is intersected by a grid line? 
+    \end{enumerate}
+    This problem has applications in VLSI chip manufacturing (Again, refer to the \hyperref[sec:appendix]{Appendix} for more information.)
+
+    % next time change the weighting. Either weight it equally on all three, or equal for the first two and more weight on the last part if you don't give the big hint.
+
+\pagebreak
+
+\section*{Appendix}\label{sec:appendix}
+
+    \subsection*{Maximum Independent Set}
+        An \textbf{independent set} in a graph is a subset of the vertices with no edges between them. Finding the largest independent set in an arbitrary graph is famously \textsf{NP-hard}. But in some special classes of graphs, we can find largest independent sets quickly. In particular, when the input graph is a tree with $n$ vertices, we can actually compute the largest independent set in O($n$) time using \textbf{dynamic programming}, as follows:
+
+        \vspace{3mm}
+        For any node $v$ in $T$ , let $MIS(v)$ denote the size of the largest independent set in the subtree rooted at $v$. Any independent set in this subtree that excludes $v$ itself is the union of independent sets in the subtrees rooted at the children of $v$. On the other hand, any independent set that includes $v$ necessarily excludes all of $v$’s children, and therefore includes independent sets in the subtrees rooted at $v$’s grandchildren. Thus, the table $MIS$ obeys the following recurrence, which we can compute using a post-order traversal on the tree (here the set $C(v)$ contains the children of $v$):
+        $$MIS(v) = \max\left\{\sum_{w \in C(v)} MIS(w),\ 1 + \sum_{w \in C(v)}\sum_{x \in C(w)}MIS(x)\right\}$$
+        \begin{figure}[htbp]
+            \centering
+            \includegraphics[width=0.8\linewidth]{images/mis.png}
+            \caption{Computing maximum independent set in a tree. }
+            \label{fig:enter-label}
+        \end{figure}
+
+    \subsection*{Configurability in VLSI Chip Manufacturing\footnote{I have limited knowledge in this field, so forgive me if I abuse some terminology.}}
+    We begin with a motivating question: Why is it so hard to create large chips? One reason is because of precision. It is very hard to avoid defects in the creation of these chips. Thus, a construct called \textbf{configurability} was introduced to VLSI chip design.
+    
+    \vspace{3mm}
+    In manufacturing, chips are regions of a larger unit called a ``wafer." Ordinarily after fabrication, a wafer is tested and faulty chips are marked; then the wafer is diced, the faulty chips are discarded, and the functional chips are packaged. However, since the entire chip is being manufactured at once, this is wasteful because even if only a small portion of the chip is defective, it must be entirely discarded. 
+
+    \vspace{3mm}
+    To use configurability, this process is changed somewhat. Special circuitry is added that enables adjacent chips to be connected. Then, after the wafer is tested, adjacent functional chips are connected into a group and the entire group is used as a single enlarged chip. In this way, even if a smaller chips becomes defective, the adjacent chips can be rewired so that they can still be used in the larger chip.
+
+    \vspace{3mm}
+    A natural problem that arises from this setup is packing a maximal number of working chips on a wafer. As an example, consider the Cartesian grid representing a wafer, shown below. Wherever there is a $2 \times 2$ grid of non-defective chips, these grid cells can be wired together. This potential grouping of chips can be visualized as a unit disk which overlaps with the four grid cells that are being wired together. For example, in the figure below, the four grid cells in the upper left corner could be wired together, so we would put a unit disk at (1, 4) with radius 1.
+
+    \begin{center}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \includegraphics[width=.8\linewidth]{images/mis_udg1.pdf}
+    \end{minipage}%
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \includegraphics[width=.8\linewidth]{images/mis_udg2.pdf}
+      % \captionof{figure}{Another figure}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \includegraphics[width=.8\linewidth]{images/mis_udg3.pdf}
+    \end{minipage}
+    \end{center}
+
+    Continuing this process for every possible wiring, we obtain the collection of disks shown in Figure \ref*{disk-setup}. Overlapping unit disks represents two wirings which conflict with each other because they use the same chips. In this scenario, the $\textsf{MIS}_{\textsf{UDG}}$ represents the maximum number of non-conflicting wirings, as shown in Figure \ref*{disk-solution}.
+
+    \begin{figure}[htbp]
+        \centering
+        \captionsetup{width=.8\linewidth}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \captionsetup{width=.8\linewidth}
+            \includegraphics[width=0.7\linewidth]{images/mis_udg4.pdf}
+            \caption{Unit disks representing chip wirings.}
+            \label{disk-setup}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \captionsetup{width=.8\linewidth}
+            \includegraphics[width=0.7\linewidth]{images/mis_udg5.pdf}
+            \caption{The $\textsf{MIS}_{\textsf{UDG}}$ of unit disks.}
+            \label{disk-solution}
+        \end{subfigure}
+        \label{fig:ugb_sol}
+    \end{figure}
+
+    
+\end{document}
+
+
+% \subsection*{\Exercise \ \textcolor{Maroon}{(EC)}}
+%     \textcolor{Maroon}{\textit{(20 pts)}} The following problem arises in telecommunications networks, and is known as the \textbf{SONET ring loading} problem. The network consists of a cycle on $n$ nodes, numbered $0$ through $n-1$ clockwise around the cycle. Some set $C$ of calls is given; each call is a pair $(i, j)$ originating at node $i$ and ending at node $j$. The call can be routed either clockwise or counterclockwise around the ring. The objective is to route the calls so as to minimize the total load on the network. The load $L_i$ on link $(i, i + 1 \pmod{n})$ is the number calls routed through the link, and the total load is $\max_{1\leq i\leq n} L_i$. Give a 2-approximation algorithm for the SONET ring loading problem.

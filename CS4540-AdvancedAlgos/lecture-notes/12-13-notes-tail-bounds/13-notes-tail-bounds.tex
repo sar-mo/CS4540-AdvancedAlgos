@@ -1,0 +1,152 @@
+\documentclass[14pt]{extreport}
+\usepackage[T1]{fontenc}
+\usepackage[left=1in, right=1in, top=1in, bottom=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{matrix, positioning}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Cases Environment
+\newlist{Cases}{enumerate}{3}
+\setlist[Cases]{leftmargin = .25in, label = {Case \arabic*.}, topsep = 0.01in, itemsep = 0.04in, itemindent = .5in, parsep = 0in}
+
+%Stats
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\Var}[1]{\operatorname{var}\left(#1\right)}
+% \newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\newcommand{\E}[2][]{\operatorname{E}_{#1}\left[#2\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+
+
+%Custom Title Fields
+\newcommand{\lectTitle}{Lecture 13 Notes}
+\newcommand{\lectTime}{March 7, 2022}
+\newcommand{\lectClass}{Advanced Algorithms}
+\newcommand{\lectClassInstructor}{Dana Randall}
+\newcommand{\lectSection}{Spring 2024}
+\newcommand{\lectAuthorName}{Sarthak Mohanty}
+
+
+\title{
+    \vspace{1.75in}
+    \textbf{\lectClass:\\ \lectTitle}\\
+    \vspace{0.1in}\large{\textit{\lectClassInstructor\ \lectSection}}
+    \vspace{2in}
+    \author{\textbf{Sarthak Mohanty}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\section*{Tail Inequalities Continued}
+
+The Markov inequality actually tells us much more than we originally let on. It is easily extended by realizing that for any function $\phi(x)$ which is non-negative and strictly monotonically increasing, $$\Pr{X \ge t} = \Pr{\phi(X) \ge \phi(t)}.$$ We now have any number of ways to modify the bound, as $$\Pr{X \ge t} \le \frac{\E{\phi(X)}}{\phi(t)},$$ for any such $\phi$. Moreover, it holds for any random variable $X$ (not just nonnegative!) as we only need $\phi(X) \ge 0$ to apply Markov.
+
+\vspace{3mm}
+A \textbf{Chernoff bound} is simply an application of Markov with $\phi(t) = e^{\lambda t}$ for some $\lambda > 0$; $$\Pr{X \ge t} \le e^{-\lambda t} \E{e^{\lambda X}}.$$ We can once again use this to bound the probability that $X$ deviates significantly from $\mu$: $$\Pr{X \ge (1 + \delta)\mu} \le e^{-(1 + \delta)\lambda\mu} \E{e^{\lambda X}}.$$ This is particularly useful when $X$ is a sum of independent [0, 1] random variables $X_{1}, X_{2}, \dots, X_{N}$. Suppose $\E{X_{i}} = p_{i}$ and $\mu = \E{X}$. Then the Chernoff bound on their sum is 
+    $$\begin{aligned}
+        \Pr{X_{1} + \dots + X_{N} \ge (1 + \delta)\mu} &\le e^{-(1 + \delta)\lambda\mu}\E{e^{\lambda(X_{1} + \dots + X_{N})}} \\
+        &= e^{-(1 + \delta)\lambda\mu}\E{e^{\lambda X_{1}}e^{\lambda X_{2}}\dots e^{\lambda X_{N}}} \\
+        &= e^{-(1 + \delta)\lambda\mu}\prod_{i = 1}^{N}\E{e^{\lambda X_{i}}} \\
+        &= e^{-(1 + \delta)\lambda\mu}\prod_{i = 1}^{N} (p_{i}e^{\lambda} + (1 - p_{i}) \cdot 1) \\
+        &= e^{-(1 + \delta)\lambda\mu}\prod_{i = 1}^{N} (1 + p_{i}(e^{\lambda} - 1))
+    \end{aligned}$$
+    The first order Taylor approximation for $e^{x}$ tells us that $1 + x \le e^{x}$ for all $x \in \mathbb{R}$. Thus
+    $$\begin{aligned}
+        \E{e^{\lambda X}} &\le \prod_{i} e^{p_{i}(e^{\lambda} - 1)} \\
+        &= e^{\sum_{i = 1}^{N} p_{i}(e^{\lambda} - 1)} \\
+        &= e^{(e^{\lambda} - 1)\mu},
+    \end{aligned}$$
+    and so for all $\lambda \ge 0$, $$\Pr{X > (1 + \delta) \mu} \le e^{-(1 + \delta)\lambda\mu}e^{(e^{\lambda} - 1)\mu} = e^{((e^{\lambda} - 1)-(1 + \delta)\lambda)\mu}.$$
+    The value of $\lambda$ that minimizes the right hand side above is $\lambda = \ln(1 + \delta)$. Plugging this in and simplifying gives us
+    $$\begin{aligned}
+        \Pr{X > (1 + \delta) \mu} &\le e^{((e^{\ln(1 + \delta)} - 1)-(1 + \delta)\ln(1 + \delta))\mu} \\
+        &= e^{(\delta - (1 + \delta)\ln(1 + \delta))\mu}
+    \end{aligned}$$
+    Now we will use the Taylor series expansion of $\ln(1 + \delta)$ given by $$\ln(1 + \delta) = \sum_{i \ge 1}(-1)^{i + 1}\frac{\delta^{i}}{i}.$$ Therefore, $$(1 + \delta)\ln(1 + \delta) = \delta + \sum_{i \ge 2} (-1)^{i}\delta^{i}\left(\frac{1}{i - 1} - \frac{1}{i}\right).$$ Assuming that $0 \le \delta < 1$, and using the alternating series bound, we get $$(1 + \delta)\ln(1 + \delta) > \delta + \frac{\delta^{2}}{2} - \frac{\delta^{3}}{6} \ge \delta + \frac{\delta^{2}}{3}.$$ Plugging this into our original expression we obtain $$\Pr{X > (1 + \delta) \mu} \le e^{\frac{-\delta^{2}\mu}{3}}\quad (0 < \delta < 1).$$ A very similar calculation shows that: $$\Pr{X < (1 - \delta)\mu} \le e^{\frac{-\delta^{2}\mu}{2}}\quad (0 < \delta < 1).$$
+
+    \vspace{5mm}
+    \textbf{Exercise}.
+    Let $X \sim \text{Bin}(n, p)$. Using Markov's inequality, find an upper bound on $\Pr{X\ge \alpha n}$, where $p < \alpha < 1$. Evaluate the bound for $p = \frac{1}{2}$ and $\alpha = \frac{3}{4}$.
+
+    \vspace{3mm}
+    \textbf{Solution}.
+    Note that $X$ is a nonnegative random variable and $\E{X} = np$. Applying Markov's inequality, we obtain $$\Pr{X \ge \alpha n} \le \frac{\E{X}}{\alpha n} = \frac{pn}{\alpha n} = \frac{p}{\alpha}.$$ For $p = \frac{1}{2}$ and $\alpha = \frac{3}{4}$, we obtain $\Pr{X \ge \frac{3n}{4}} \le \frac{2}{3}$.
+
+    \vspace{3mm}
+    On the other hand, we can use Chebyshev's inequality to obtain 
+    $$\begin{aligned}
+        \Pr{X \ge \alpha n} &= \Pr{X - np \ge \alpha n - np} \\
+        &\le \Pr{|X - np| \ge n\alpha - n p} \\
+        &\le \frac{\Var{X}}{(n\alpha - np)^{2}} \\
+        &= \frac{p(1 - p)}{n(\alpha - p)^{2}}
+    \end{aligned}$$
+    For $p = \frac{1}{2}$ and $\alpha = \frac{3}{4}$, we obtain $$\Pr{X \ge \frac{3n}{4}} \le \frac{4}{n}.$$
+
+    \vspace{3mm}
+    Note that Markov is better when $n$ is small, but as $n$ increases, Chebyshev gives us a better estimate, inversely linear in $n$. However, we can do much better than both approaches with Chernoff. Left as an exercise for the reader.
+
+\subsection*{More General Chernoff Inequality}
+    Chernoff bounds may also be applied to general sums of independent, bounded random variables, regardless of their distribution; this is known as \textbf{Hoeffding's inequality.} We will not cover it in this course, but it is important to prove some bounds in learning theory, among other things.
+
+\end{document}
+
+
+https://tex.stackexchange.com/questions/387732/probability-density-function-diagram

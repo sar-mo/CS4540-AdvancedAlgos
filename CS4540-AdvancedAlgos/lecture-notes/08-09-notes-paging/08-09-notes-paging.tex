@@ -1,0 +1,378 @@
+\documentclass[14pt]{extreport}
+\usepackage[T1]{fontenc}
+\usepackage[left=1in, right=1in, top=1in, bottom=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{cancel}
+
+% colored links
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{matrix, positioning}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+% Images
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+
+% Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+
+% Cases Environment
+\newlist{Cases}{enumerate}{3}
+\setlist[Cases]{leftmargin = .25in, label = {Case \arabic*.}, topsep = 0.01in, itemsep = 0.04in, itemindent = .5in, parsep = 0in}
+
+% Stats
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\var}[1]{\operatorname{var}\left(#1\right)}
+\newcommand{\E}[2][]{\operatorname{E}_{#1}\left[#2\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+
+% Custom Title Fields
+\newcommand{\lectTitle}{Lecture 8 \& 9 Notes}
+\newcommand{\lectTime}{March 7, 2024}
+\newcommand{\lectClass}{Advanced Algorithms}
+\newcommand{\lectClassInstructor}{Dana Randall}
+\newcommand{\lectSection}{Spring 2024}
+\newcommand{\lectAuthorName}{Sarthak Mohanty, Aadit Trivedi}
+
+\title{
+    \vspace{1.75in}
+    \textbf{\lectClass:\\ \lectTitle}\\
+    \vspace{0.1in}\large{\textit{\lectClassInstructor\ \lectSection}}
+    \vspace{2in}
+\author{\textbf{Sarthak Mohanty}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\chapter*{Online Algorithms}
+    Before this class, our algorithm design has been as follows: take in some input, put it through some black box, and produce some output.
+
+    \vspace{2mm}
+    In the last section, we expanded our definition a little, by allowing some randomized ``bits" to be fed in alongside our input. We saw that this approach allowed for algorithms that came with security and time complexity benefits.
+
+    \vspace{2mm}
+    Now, instead of allowing our algorithm more information, we \textit{restrict} some information to our algorithm.
+    
+    \begin{tcolorbox}[colframe=gray!50, sharp corners]
+        \textbf{Definition. } An \textbf{online algorithm} is one that produces its output step-by-step, as more parts of the input become available. More formally, the input of an online algorithm is a sequence of requests $\sigma = \sigma_{1}, \dots, \sigma_{n}$. The algorithm needs to handle these requests in order. When handling $\sigma_{t}$, the algorithm does not know the future requests $\sigma_{t'}$ for $t' > t$.
+    \end{tcolorbox}
+
+    \vspace{2mm}
+    While you may not have encountered online algorithms formally yet, there are many areas you have seen similar motifs. For example, online algorithms and machine learning are both concerned with problems of making decisions from limited information. In fact, there are a collection of results in Computational Learning Theory that fit nicely into the ``online algorithms" framework, such as the Winnow algorithm. \footnote{Professor Vempala, who taught this class last semester, covered this \href{https://santoshv.github.io/2023CS4540/AI_theory2023.html}{here}.}
+        
+
+\section*{Paging}
+    Computer systems often have multi-level storage systems. Earlier, there were only RAM and long-term storage devices. Nowadays there are also several levels of cache memory (L1, L2, L3 cache).
+    
+    The setting for this problem is as follows: we have a two-level computer memory system, composed of fast memory (of size $k$), and slow memory (of size $n > k$). We need to answer a request sequence $\sigma = \sigma_{1}\sigma_{2}\dots\sigma_{m}$, where $\sigma_{i}$ is an item to be paged.
+
+    \vspace{5mm}
+    Any page someone wants needs to be moved to fast memory. If fast memory (cache) is full and I need a page that is not in it, we encounter a page fault where I now need to swap in a page.
+
+
+\subsection*{Offline Approach}
+    Suppose I already have a list of all the pages I intend on accessing (i.e. P5, P7, P5, P1, P1000, etc.). Because we know the order of pages to be accessed, we can deterministically find an optimal strategy to minimize page faults. One such strategy is \textbf{longest forward distance} (LFD), where we replace the page whose next request is latest in the future.
+
+    \vspace{5mm}
+    \textbf{Theorem.} LFD is an optimal page replacement policy.
+
+    \vspace{5mm}
+    \textbf{Proof.}
+    Fix a sequence $\sigma$. For all $i$, let $C_{0}^{(i)}$ denote the state of the cache after request $\sigma_{i}$ is served, and let $C_{0} = (C_{0}^{(i)})_{1 \le i \le m}$.
+
+    \vspace{5mm}
+    Let \( C_t = (C^{(i)}_t)_i \) be defined inductively as follows: up to and including time \( t \), use LFD to choose which page to evict when there is a page fault. This determines the state of the cache at each timestep until time \( t \). Then, follow the choice of evictions of \( C_{t-1} \) for all times \( > t \), except for one modification defined as follows.
+
+    \vspace{2mm}
+    Assume that at time \( t \), algorithm \( C_{t-1} \) evicts page \( u \), whereas LFD evicts page \( v \). Let \( t' \) be the first time when either \( C_{t-1} \) evicts page \( v \), or \( C_{t-1} \) brings page \( u \) back into the cache by evicting some page \( u' \), whichever comes first. In the first case, at time \( t' \), \( C_t \) evicts page \( u \). In the second case, at time \( t' \), \( C_t \) evicts page \( u' \). Either way, after serving request \( t' \), the state of the cache is the same for \( C_{t-1} \) and \( C_t \).
+
+    \vspace{2mm}
+    By definition of LFD, between time \( t \) and time \( t' \), there can be no request for page \( v \), so \( C_t \) is well-defined and incurs no more page faults than \( C_{t-1} \). By induction, \( C_t \) is at least as good as \( C_0 \). For \( t = m \), \( C_m \) is exactly LFD, so LFD is at least as good as \( C_0 \). This was for an arbitrary \( C_0 \), so LFD is optimal.
+
+
+\subsection*{Online Approach}
+
+    \begin{tcolorbox}[colframe=gray!50, sharp corners]
+        \textbf{Definition:} Let $OPT(\sigma)$ and $ALG(\sigma)$ denote the cost incurred by the best possible offline algorithm $OPT$, and the online algorithm $ALG$, respectively. The \textbf{competitive ratio} of a deterministic online algorithm $ALG$ is defined as
+        $$\max_{\sigma}\frac{ALG(\sigma)}{OPT(\sigma)}.$$
+    \end{tcolorbox}
+    
+    Sometimes we choose to ignore constant additive factors in the cost of the algorithm. This leads to the following alternative definition of competitive ratio. In this case, when the algorithm's cost involves no constant additive factor, we call the corresponding ratio a strong competitive ratio.
+
+    \begin{tcolorbox}[colframe=gray!50, sharp corners]
+        \textbf{Definition:} A deterministic online algorithm is \textbf{$c$-competitive} iff
+        $$\exists a \ge 0 \text{ s.t. } \forall \sigma, ALG(\sigma) \le c \cdot OPT(\sigma) + a.$$
+    \end{tcolorbox}
+
+    We first state a lower bound for deterministic online algorithms:
+
+    \vspace{5mm}
+    \textbf{Theorem.} For any deterministic online paging algorithm $A$, the competitive ratio of $A$ is at least $k$.
+
+    \vspace{5mm}
+    \textbf{Proof.}
+    Consider a universe of $k + 1$ pages. Since $A$ has only $k$ pages in cache, there is always at least one page that is not in $A$'s cache. An adversary constructs the request sequence by always requesting such a page. Hence $A$ faults on every request, so
+    $$A(\sigma) = |\sigma|.$$
+
+    \vspace{2mm}
+    On the other hand, $OPT$ can serve this sequence with at most one fault per $k$ requests, up to an additive constant. Equivalently,
+    $$OPT(\sigma) \le \frac{|\sigma|}{k} + O(1).$$
+
+    \vspace{2mm}
+    Therefore,
+    $$\frac{A(\sigma)}{OPT(\sigma)}
+    \ge
+    \frac{|\sigma|}{|\sigma|/k + O(1)}.$$
+
+    \vspace{2mm}
+    As $|\sigma| \to \infty$, this approaches $k$. Thus no deterministic online algorithm has competitive ratio better than $k$.
+
+    \vspace{5mm}
+    From the above result, we can categorize common paging strategies by whether they are $k$-competitive or not. Some $k$-competitive strategies include:
+    \begin{itemize}[label={}]
+        \item Least Recently Used (LRU) \\
+        Replace the page that has not been used for the longest time.
+        \item First in First Out (FIFO) \\
+        Replace the page that has been in fast memory longest.
+    \end{itemize}
+    Strategies that do not achieve this competitive bound include:
+    \begin{itemize}[label={}]
+        \item Last In First Out (LIFO) \\
+        Replace the page most recently moved to fast memory.
+        \item Least Frequently Used (LFU) \\
+        Replace the page that has been used the least.
+    \end{itemize}
+
+
+\subsection*{Marking Algorithms}
+    Marking algorithms are a class of online paging algorithms that achieve the $k$-competitive bound. In fact, all the above-mentioned competitive algorithms are some form of a marking algorithm.
+    
+    \vspace{2mm}
+    A marking algorithm has a design which can be characterized as follows:
+    \begin{itemize}
+        \item Partition the sequence of accesses $\sigma$ into phases, where each phase contains $k$ \textit{distinct} pages, and a new phase begins when a request arrives for the $(k+1)$st distinct page since the start of the current phase.
+        \item Mark each new page requested during the current phase.
+        \item At the end of a phase, unmark all pages in fast memory.
+    \end{itemize}
+    Note that a marking algorithm never evicts a page which is already marked. This key observation leads to an easy analysis of these algorithms:
+    
+    \vspace{3mm}
+    \textbf{Theorem.} All deterministic marking algorithms are $k$-competitive.
+
+    \vspace{3mm}
+    \textbf{Proof.}
+    Partition the request sequence into phases, where each phase contains $k$ distinct pages, and a new phase begins when a request arrives for the $(k+1)$st distinct page since the start of the current phase.
+
+    \vspace{2mm}
+    A marking algorithm faults at most $k$ times per phase. This is because once a page is requested in a phase, it is marked, and marked pages are never evicted. Therefore each distinct page in a phase can cause at most one fault.
+
+    \vspace{2mm}
+    Now consider $OPT$. Let $p$ be the first request of a phase after the first phase. The previous phase contained $k$ distinct pages, none of which is $p$; otherwise $p$ would not start a new phase. Thus, across the previous phase and the first request of the current phase, there are $k+1$ distinct pages. Since $OPT$ has only $k$ cache slots, it must fault at least once.
+
+    \vspace{2mm}
+    Therefore, if there are $q$ phases, then
+    $$A(\sigma) \le kq$$
+    and
+    $$OPT(\sigma) \ge q - O(1).$$
+
+    \vspace{2mm}
+    Hence
+    $$A(\sigma) \le k \cdot OPT(\sigma) + O(k).$$
+
+    \vspace{2mm}
+    Thus every deterministic marking algorithm is $k$-competitive.
+
+
+\section*{Randomization}
+    The competitive ratio that we have achieved thus far is pretty substandard. However, it works rather well in practice. This is because competitive ratio measures the ``worst-case" performance, but the distribution of the input sequence usually makes it so our average performance is pretty good.
+
+    \vspace{2mm}
+    The issue remains that if an adversary wanted to defeat our system, it would be pretty easy. We know already that one way to beat this adversary is to randomize our decision process. Of course, this requires the adversary to produce the sequence in advance -- after knowing our algorithm, but before the algorithm responds to the sequence. This is called an \textit{oblivious adversary}.
+
+    \vspace{2mm}
+    For example, consider this randomized marking algorithm, called \textsc{RandMark}: 
+    \begin{itemize}
+        \item When a request to a page arrives, if it is in cache, then mark it.
+        \item If it is not in cache, then remove an unmarked page uniformly at random, fetch the requested page from disk, and mark it.
+        \item If all pages in cache are marked when a page faults, unmark all pages first before applying the above strategy.
+    \end{itemize}
+    This algorithm is $2H_{k}$-competitive, where $H_{k} = 1 + \frac{1}{2} + \dots + \frac{1}{k}$ is the $k$-th harmonic number. Here competitiveness is over expectation.
+
+    \vspace{3mm}
+    \textbf{Theorem.} \textsc{RandMark} is $2H_k$-competitive against an oblivious adversary.
+
+    \vspace{3mm}
+    \textbf{Proof.}
+    We split our proof into two parts.
+
+    \vspace{5mm}
+    \textbf{Part 1. } The expected number of faults made by \textsc{RandMark} in a phase is at most $cH_k$, where $c$ is the number of new pages in the phase.
+
+    \begin{proof}
+        Fix a phase. A page is called \textit{new} if it did not appear in the previous phase, and \textit{old} otherwise. Let $c$ be the number of new pages in the current phase.
+
+        \vspace{2mm}
+        The only way an old page can fault is if it was randomly evicted earlier in the phase to make room for a new page. Since there are $c$ new pages, there are at most $c$ such random evictions that can hurt old pages later.
+
+        \vspace{2mm}
+        Reveal the old pages in the current phase in the order in which they are first requested. Suppose $i - 1$ old pages have already been requested and marked. Then there are at least $k - i + 1$ unmarked pages remaining. Since at most $c$ of the still-unrequested old pages could have been evicted, the probability that the next old page faults is at most
+        $$\frac{c}{k - i + 1}.$$
+
+        \vspace{2mm}
+        Summing over all possible old pages in the phase gives
+        \begin{align*}
+            \E{\text{page faults in the phase}}
+            &\le \sum_{i=1}^{k} \frac{c}{k - i + 1} \\
+            &= c \left( \frac{1}{k} + \frac{1}{k - 1} + \dots + 1 \right) \\
+            &= cH_k.
+        \end{align*}
+    \end{proof}
+
+    \textbf{Part 2. } The amortized number of faults made by $OPT$ during the phase is at least $\frac{c}{2}$.
+
+    \begin{proof}
+        Let $c$ be the number of new pages in the current phase. By definition, these $c$ pages were not requested in the previous phase. The previous phase contained $k$ distinct pages, and the current phase contains $c$ additional pages not among those $k$ pages. Therefore, across the previous phase and the current phase, there are at least $k+c$ distinct pages.
+
+        \vspace{2mm}
+        Since $OPT$ can hold only $k$ pages, it must incur at least $c$ faults across these two phases. Charging these faults equally to the two phases, the amortized number of faults made by $OPT$ during the current phase is at least
+        $$\frac{c}{2}.$$
+    \end{proof}
+
+    Thus the competitive ratio is
+    $$r = \max_{\sigma} \frac{\E{\textsc{RandMark}(\sigma)}}{OPT(\sigma)}
+    \le
+    \frac{cH_k}{c/2}
+    =
+    2H_k.$$
+    There does exist a randomized algorithm that is $H_k$-competitive. It is called \textsc{Partition}, but we will not discuss it here. However, there is one more result for this section that we will discuss.
+
+    \vspace{5mm}
+    \textbf{Theorem.} No randomized paging algorithm has competitive ratio better than $\Omega(\log k)$ against an oblivious adversary.
+
+    \vspace{5mm}
+    \textbf{Proof.}
+    We begin our proof with an important principle. If you are familiar with Von Neumann's minimax theorem, this theorem will look familiar. If not, this will take some time to understand.
+
+    \begin{tcolorbox}[colframe=gray!50, sharp corners]
+        \textbf{Yao's Principle:} To prove a lower bound against randomized algorithms, it suffices to construct a distribution over inputs such that every deterministic algorithm performs poorly in expectation on that distribution.
+    \end{tcolorbox}
+    
+    Equivalently, if $\mathcal{R}$ is the set of randomized algorithms, $\mathcal{A}$ is the set of deterministic algorithms, and $\mathcal{D}$ ranges over distributions on inputs, then
+    $$\min_{R \in \mathcal{R}}\max_{x}\E{R(x)}
+    \ge
+    \max_{\mathcal{D}}\min_{A \in \mathcal{A}}\E[x \sim \mathcal{D}]{A(x)}.$$
+
+    \vspace{5mm}
+    Constructing the distribution: Let $S$ be a set of $k + 1$ pages. Generate a request sequence $\sigma$ of length $m$ by choosing each request independently and uniformly at random from $S$.
+
+    \vspace{2mm}
+    Fix any deterministic online algorithm $A$. At every time step, $A$ has only $k$ pages in its cache, so exactly one page of $S$ is missing from its cache. Since the next request is uniform over $S$, the probability that $A$ faults is
+    $$\frac{1}{k+1}.$$
+
+    \vspace{2mm}
+    Thus, over a sequence of length $m$,
+    $$\E{A(\sigma)} = \frac{m}{k+1}.$$
+
+    Now consider $OPT$. The offline optimum can serve the sequence much more efficiently. Roughly, $OPT$ faults only after the request sequence has accumulated all $k+1$ pages since the last time it changed its cache. The expected time to see all $k+1$ pages is the coupon collector time
+    $$(k+1)H_{k+1}.$$
+
+    Therefore,
+    $$\E{OPT(\sigma)}
+    =
+    O\left(\frac{m}{(k+1)H_k}\right).$$
+
+    \vspace{2mm}
+    Hence every deterministic algorithm has expected competitive ratio at least
+    $$\Omega(H_k) = \Omega(\log k).$$
+
+    \vspace{2mm}
+    By Yao's Principle, no randomized online paging algorithm has competitive ratio better than $\Omega(\log k)$ against an oblivious adversary.
+
+\subsection*{More Adversaries}
+    Besides the oblivious adversary, there are two other types:
+    
+    \begin{tcolorbox}[colframe=gray!50, sharp corners]
+        \textbf{Definition:} The \textbf{oblivious adversary} must construct the request sequence in advance, based only on the description of the online algorithm, but before any moves are made.
+    \end{tcolorbox}
+
+    Since a randomized algorithm is not totally predictable, randomization makes it hard for the oblivious adversary to generate a difficult request sequence for the algorithm. 
+    
+    \begin{tcolorbox}[colframe=gray!50, sharp corners]
+        \textbf{Definition:} The \textbf{adaptive online adversary} makes the next request based on the algorithm's answers to previous ones, but serves it immediately.
+    \end{tcolorbox}
+
+    This ``medium adversary" can be considered as an active attacker. When you make a decision, they see that decision, and can respond appropriately.
+    
+    \begin{tcolorbox}[colframe=gray!50, sharp corners]
+        \textbf{Definition:} The \textbf{adaptive offline adversary} makes the next request based on the algorithm's answers to previous ones, but serves them optimally at the end.
+    \end{tcolorbox}
+
+    This adversary is extremely strong. After observing the entire sequence of moves by the algorithm, the adversary then serves them optimally.
+
+    \vspace{3mm}
+    There are two important theorems\footnote{Ben-David et. al, On the Power of Randomization in Online Algorithms, STOC 1990} on the power of the last two adversaries:
+
+    \vspace{3mm}
+    \textbf{Theorem.} If there is a randomized algorithm that is $\alpha$-competitive against any adaptive offline adversary, then there also exists an $\alpha$-competitive deterministic algorithm.
+
+    \vspace{3mm}
+    \textbf{Theorem.} If $G$ is a $c$-competitive randomized algorithm against any adaptive online adversary, and there is a randomized $d$-competitive algorithm against any oblivious adversary, then $G$ is a randomized $(c \cdot d)$-competitive algorithm against any adaptive offline adversary.
+
+    \vspace{2mm}
+    These two theorems basically indicate that randomization provides no power against the adaptive offline adversary, and provides little, if any, power against the adaptive online adversary.
+
+\section*{References and Further Reading}
+\begin{itemize}
+    \item \href{https://www.cse.iitd.ac.in/~Naveen/courses/CSL758/scribes/lec23.pdf}{IIT Delhi - Online Algorithms Notes}
+    \item \href{https://www.cs.cmu.edu/~sleator/papers/competitive-paging.pdf}{Amortized Efficiency of List Update and Paging Rules (Sleator \& Tarjan)}
+\end{itemize}
+
+\end{document}

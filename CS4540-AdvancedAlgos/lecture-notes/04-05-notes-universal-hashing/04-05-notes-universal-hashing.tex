@@ -1,0 +1,339 @@
+\documentclass[14pt]{extreport}
+\usepackage[T1]{fontenc}
+\usepackage[left=1in, right=1in, top=1in, bottom=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% tcolorbox
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usepackage{varwidth}
+\newtcolorbox{mybox}[2][]{enhanced,
+    before skip=2mm,after skip=2mm,
+    colback=black!5,colframe=black!50,boxrule=0.2mm,
+    attach boxed title to top left={xshift=1cm,yshift*=1mm-\tcboxedtitleheight},
+    varwidth boxed title*=-3cm,
+    boxed title style={frame code={
+        \path[fill=tcbcolback!50!black]
+        ([yshift=-1mm,xshift=-1mm]frame.north west)
+        arc[start angle=0,end angle=180,radius=1mm]
+        ([yshift=-1mm,xshift=1mm]frame.north east)
+        arc[start angle=180,end angle=0,radius=1mm];
+        \path[left color=tcbcolback!80!black,right color=tcbcolback!80!black,
+        middle color=tcbcolback!100!black]
+        ([xshift=-2mm]frame.north west) -- ([xshift=2mm]frame.north east)
+        [rounded corners=1mm]-- ([xshift=1mm,yshift=-1mm]frame.north east)
+        -- (frame.south east) -- (frame.south west)
+        -- ([xshift=-1mm,yshift=-1mm]frame.north west)
+        [sharp corners]-- cycle;
+    },interior engine=empty,
+    },
+fonttitle=\bfseries,
+title={#2},#1}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+% %Stats
+% \newcommand{\Cov}{\text{Cov}}
+% \newcommand{\trace}{\text{trace}}
+% \newcommand{\Normal}{\text{Normal}}
+% \newcommand{\var}[1]{\operatorname{var}\left(#1\right)}
+% \newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+% \renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Cases Environment
+\newlist{Cases}{enumerate}{3}
+\setlist[Cases]{leftmargin = .25in, label = {Case \arabic*.}, topsep = 0.01in, itemsep = 0.04in, itemindent = .5in, parsep = 0in}
+
+%Custom Title Fields
+\newcommand{\lectTitle}{Lecture 4 and 5 Notes}
+\newcommand{\lectTime}{January 7, 2022}
+\newcommand{\lectClass}{Advanced Algorithms}
+\newcommand{\lectClassInstructor}{Dana Randall}
+\newcommand{\lectSection}{Spring 2024}
+\newcommand{\lectAuthorName}{Sarthak Mohanty}
+
+\title{
+    \vspace{1.75in}
+    \textbf{\lectClass:\\ \lectTitle}\\
+    \vspace{0.1in}\large{\textit{\lectClassInstructor\ \lectSection}}
+    \vspace{2in}
+    \author{\textbf{\lectAuthorName}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\chapter*{Randomized Algorithms}
+    What is a randomized algorithm? Recall that for an algorithm, we start with an input, feed it into a program, get an output. We are hoping it is \textbf{correct, efficient (in terms of input size), etc}. Now for a randomized algorithm, we also have a string of independent random 0-1 bits that we are feeding in.  We want to know how this program is going to behave. One example is \href{https://www.cs.cmu.edu/afs/cs/academic/class/15451-s07/www/lecture_notes/lect0123.pdf}{Quicksort}\footnote{Should be prior knowledge, but reviewed in class.}.
+    \begin{itemize}
+        \item Deterministic: does ok? for a random input but some inputs are terrible 
+        \item Randomized: is pretty good (and good enough) on all inputs.
+    \end{itemize}
+    Some applications of randomized algorithms:
+    \begin{enumerate}[label=\arabic*.]
+        \item \textbf{Load Balancing}: Dynamically allocating resources to different servers, want to minimize worst-case load (see ``Balls and Bins" section below).
+        \item \textbf{Resistance to Adversarial Inputs}: Randomized algorithms dilute the power of an adversary to manipulate the input in a way that causes the algorithm to perform poorly, a significant advantage in security-sensitive applications.
+        \item \textbf{Secret Keeping}: In cryptographic protocols, randomization is a key element in ensuring that secrets (like keys or passwords) cannot be easily guessed or reverse-engineered.
+        \item \textbf{Breaking Symmetry in Distributed Algorithms}: Randomization is often used to break symmetry in distributed systems, ensuring that no two nodes make the same decision simultaneously, which is critical in deadlock avoidance and resource allocation.
+    \end{enumerate}
+    Motivating question for this lecture: Can we "randomize an input" to create a provably effective randomized algorithm?
+
+\section*{Hashing: Introduction and Definitions}
+    The formal setup for hashing is as follows:
+    \begin{itemize}[label={\textbf{--}}]
+        \item Our keys come from some large universe $U$ (e.g, think of $U$ as the set of all ascii strings of length at most 100.) 
+        \item The keys we actually care about are in some set $S \subseteq U$. This set can be assumed to be much smaller than $U$. For instance, perhaps $S$ is the set of names of students in this class, which is certainly smaller than $128^{100}$.
+        \item The primary goal of hashing is to store these keys in an array of size $n$ equipped with a \textbf{hash function} $h \colon U \rightarrow \{0, \dots, n - 1 \}$ that can enable efficient operations on a hash table while minimizing collisions. These operations include $\textsc{Lookup}(x)$, $\textsc{Insert}(x)$, and $\textsc{Delete}(x)$.
+    \end{itemize}
+    There are a few desired properties we want $h$ to have. In particular,
+        \begin{itemize}
+            \item $h$ is easily computable / doesn't take much space to describe. In our analysis today we will be viewing the time to compute $h(x)$ as a constant. However, it is worth remembering in the back of our heads that $h$ shouldn't be too complicated, because that affects the overall runtime.
+            \item \# of collisions is small, since collisions affect the time to perform our operations.
+            \item $n = \mathcal{O}(|S|)$; we would like a performant scheme without causing our table size $n$ to be much larger than the number of elements $|S|$.
+        \end{itemize}
+
+    We discussed why a deterministic approach wouldn't work, through the following scenario:
+    
+    \begin{tcolorbox}[enhanced,interior style={top color=Plum!10,bottom color=Plum!20}]
+        \begin{mybox}[
+            colframe=Cerulean!50!black,
+            colback=Cerulean!30,
+            colbacktitle=Cerulean!,
+            % fonttitle=\bfseries,
+            coltitle=Cerulean!30!black
+            ]{Student}
+            You need to come up with a hash function that will hash any input in constant time.
+    
+        \end{mybox}
+        \begin{mybox}[
+            colframe=purple!50!black,
+            colback=purple!30,
+            colbacktitle=purple!50!white,
+            % fonttitle=\bfseries,
+            coltitle=purple!30!black,
+            ]{Professor Randall}
+            As your (evil) professor, no matter what hash function you give her, she can find some bad input for it. For example, if $h(x) \equiv x \pmod{n}$,  Professor Randall would choose the inputs $i, i + n, i + 2n \dots, i + n^{2}$.
+        \end{mybox}
+        As we will soon see, the solution for this student is to not just choose one hash function, but take multiple and then choose at random.
+        % could be refind.
+    \end{tcolorbox}
+
+    
+\subsection*{Completely Random Hash Function}
+    Back to our original discussion of hashing. As I'm sure many of you have already thought, ``Why can't we just hash with a completely random hash function?" The issue with this idea is that there are $n^{|U|}$ possible hash functions. To represent \textit{just one} of these hash functions, it would take $\log\left(n^{|U|}\right) = |U|\log(n)$ bits. This is completely impractical.
+
+    \vspace{3mm}
+    Regardless, it is a good primer for the next lecture to (assuming we do have a random hash function) check its validity (i.e. can it hash in constant time?)
+    
+    \vspace{3mm}
+    Suppose we have a random hash function $h$. Then by definition, $\Pr_{h \sim \mathcal{H}}(h(x) = h(y)) = 1/n$. Now let $X$ be the size of the hash bucket that $x_{i}$ maps to. $X$ is a random variable, with expected value
+    \begin{align*}
+        \mathbb{E}[X] &= \sum_{j = 1}^{n} \Pr(h(x_{i}) = h(x_{j})) \\
+        &= 1 + \sum_{j \ne i} \Pr(h(x_{i}) = h(x_{j})) \\
+        &= 1 + \frac{n - 1}{n} \le 2
+    \end{align*}
+    Thus the expected cost of hashing is a constant.
+
+\section*{Universal Hash Functions}
+    Note that mathematically, the only assumption we really made in our analysis above was that $\Pr_{h \sim \mathcal{H}} (h(x) = h(y)) = 1/n$. That got some folks\footnote{Carter and Wegman, in 1978.} thinking \textbf{``can we replicate this behavior with a much simpler family of hash functions?"}
+    \begin{tcolorbox}[colframe=gray!50, sharp corners]
+        \textbf{Definition:} A family $\mathcal{H} = \{h_{i}\}^{k}_{i = 1} = \{h_{1}, \dots, h_{k}\}$ where $h_{i} \colon U \rightarrow \{0, \dots, n - 1\}$ for each $i$ is \textbf{2-universal} if $\forall x, y \in U$ such that $ x \ne y$ we have $$\Pr_{h \sim \mathcal{H}} (h(x) = h(y)) \le \frac{1}{n}$$ where $h \sim \mathcal{H}$ means that $h$  is selected uniformly at random from $\mathcal{H}$.
+    \end{tcolorbox}
+    Let's explore how a 2-universal hash family can achieve our goals with significantly reduced storage requirements.
+
+    \vspace{5mm}
+    \textbf{Proposition.} There exists a 2-universal family of hash functions  whose members take values in $n$ bins, take $\mathcal{O}(\log(n))$ bits to represent uniquely, and take $\mathcal{O}(1)$ time to evaluate.
+
+    \vspace{5mm}
+    \textbf{Proof.} We proceed constructively. Pick some $p \in [n, 2n]$\footnote{\href{https://en.wikipedia.org/wiki/Bertrand}{Bertrand's postulate} tells us this is always possible}. Define 
+    \begin{align*}
+        g_{a, b}(x) &= ax + b \pmod{p} \\
+        h_{a, b}(x) &= g_{a, b}(x) \pmod{n}
+    \end{align*}
+    Now consider the set $$\mathcal{H} = \{h_{a,b} : a \in \{1,\dots,p-1\},\ b \in \{0,\dots,p-1\}\}.$$ A given $h$ is parameterized by $a$ and $b$. Each of these values are in the range $\mathcal{O}(n)$, so the number of bits needed to sample a hash function from this family is $\mathcal{O}(\log(n))$. We now claim this set is 2-universal.
+
+    \vspace{5mm}
+    \textbf{Lemma.} For every fixed two \textit{distinct} $x, y \in U = \{0, \dots, n - 1\}$, the number of pairs $(a, b)$ such that $h_{a, b}(x) = h_{a, b}(y)$ is at most $\frac{p(p - 1)}{n}$.
+
+    \vspace{5mm}
+    \textbf{Proof.} Every collision $h_{a, b}(x) = h_{a, b}(y)$ stems from some pair $s, t \in \{0, \dots, p - 1\}$ so that $s \equiv t \pmod{n}$, $g_{a, b}(x) = s$, and $g_{a, b}(y) = t$. So, let's count the number of such pairs.
+
+    \vspace{5mm}
+    Before we do any counting, notice that $g_{a, b}(x) \ne g_{a, b}(y)$, as it would imply that $p \mid a(x - y)$. Since $a \ne 0$, $x \ne y$, and both $x,y \in \{0,\dots,n-1\} \subseteq \{0,\dots,p-1\}$, this is impossible.
+
+    \vspace{5mm}
+    For each residue class modulo $n$, let $c_i$ be the number of values in $\{0,\dots,p-1\}$ congruent to $i \pmod n$. Then the number of valid ordered pairs $(s,t)$ with $s \equiv t \pmod n$ and $s \ne t$ is
+    $$\sum_{i = 0}^{n-1} c_i(c_i - 1).$$
+    Write $p = qn + r$ where $0 \le r < n$. Then $r$ residue classes have size $q+1$ and the remaining $n-r$ residue classes have size $q$. Therefore
+    \begin{align*}
+        \sum_{i = 0}^{n-1} c_i(c_i - 1)
+        &= r(q+1)q + (n-r)q(q-1) \\
+        &= nq(q-1) + 2rq \\
+        &\le \frac{p(p-1)}{n}.
+    \end{align*}
+
+    Next, for any given valid pair \((s, t)\), we will count how many pairs \((a, b)\) there are such that \(g_{a,b}(x) \equiv s \pmod{p}\) and \(g_{a,b}(y) \equiv t \pmod{p}\). In other words, we are asking how many values \(a \in \{1, \ldots, p - 1\}\) and \(b \in \{0, \ldots, p - 1\}\) there are that satisfy the following system
+    \begin{align*}
+        ax + b &\equiv s \pmod{p} \\
+        ay + b &\equiv t \pmod{p}
+    \end{align*}
+    This is a system of 2 linear congruences in 2 unknowns. In this case the modulus is prime, so everything you know from linear algebra goes over to systems of linear congruences. (The reason is that $\mathbb{Z}_{p}$ is a \textbf{field}, for $p$ prime, and linear algebra works fine over any field — not just $\mathbb{R}$ and $\mathbb{C}$.\footnote{Looks like that 3406 class finally came in handy!}) We can rewrite the above system as 
+    $$
+    \begin{bmatrix}
+        x & 1 \\
+        y & 1
+    \end{bmatrix}
+    \begin{bmatrix}
+        a \\
+        b
+    \end{bmatrix}
+    \equiv
+    \begin{bmatrix}
+        s \\
+        t
+    \end{bmatrix}
+    \pmod{p}.
+    $$
+    The matrix $\begin{bsmallmatrix}
+        x & 1 \\
+        y & 1
+    \end{bsmallmatrix}$ is invertible, so the system has a unique solution
+    $\begin{bsmallmatrix}
+        a \\
+        b
+    \end{bsmallmatrix}$. Since $s \ne t$, this solution has $a \ne 0$. This means that for each valid pair \((s,t)\), there is exactly one pair of values \((a, b)\) such that \(g_{a,b}(x) = s\) and \(g_{a,b}(y) = t\). Consequently, the number of pairs \((a, b)\) for which \(h_{a,b}(x) = h_{a,b}(y)\) is at most \(\frac{p(p - 1)}{n}\).
+
+    \vspace{2mm}
+    Since $h$ is parameterized by $a$ and $b$, there are $p(p - 1)$ total functions in $\mathcal{H}$. We conclude that $$\Pr_{h \sim \mathcal{H}} (h(x) = h(y)) = \frac{\#\{h \in \mathcal{H} : h(x) = h(y) \}}{p(p - 1)} \le \frac{\frac{p(p - 1)}{n}}{p(p - 1)} = \frac{1}{n}.$$
+
+\section*{Balls and Bins}
+    It is worth taking a little detour to ponder a classic problem (which actually relates back to our discussion above about load balancing!)
+    \begin{tcolorbox}
+        We have $m$ balls and want to throw them into $n$ bins. We throw them uniformly and independently. After all the balls are in the bins, what is the expected maximum number of balls in a single bin?
+        \begin{center}
+            \includegraphics[scale=0.5]{lecture_notes/balls_into_bins.png}
+        \end{center}
+        The answer, with high probability, is $\mathcal{O}(\log(n))$.\footnote{The true answer is a little more nuanced, see the discussion \href{https://math.stackexchange.com/questions/3699416/maximum-load-of-balls-and-bins-when-m-neq-n}{here}.} Note the base is not important, as $$\mathcal{O}(\log_{b}(n)) = \mathcal{O}\left(\frac{\log_{a}(n)}{\log_{a}(b)}\right) = \mathcal{O}(\log_{a}(n))$$
+    \end{tcolorbox}
+    To illustrate the power of 2-universal hash function, suppose we have $m = n$ and our `throw' is determined by a 2-universal hash function. Assume now that the $n$ balls are thrown independently and uniformly into the $n$ bins. Then
+    \begin{align*}
+        \Pr({\text{Some bin gets $\ge k$ balls}}) &\le \sum_{j}\Pr({\text{Bin $j$ gets $\ge k$ balls}}) \\
+        &\le \sum_{j}\sum_{S \subseteq [n], |S| = k}\Pr(\text{balls $S$ all fall in bin $j$}) \\
+        &\le \sum_{j}\binom{n}{k}\frac{1}{n^{k}} \\
+        &= n\binom{n}{k}\frac{1}{n^{k}}
+    \end{align*}
+    Using the code in the Appendix, we plot this function for a fixed $n = 10$ below. Note the probability of a bin containing more than $k$ balls decreases exponentially as $k$ increases. Even for relatively small $n$, the probability becomes minuscule.
+    \begin{center}
+        \includegraphics[scale=0.6]{lecture_notes/probability.pdf}
+    \end{center}
+
+\section*{Further Discussion}
+    This section is taken from the set of lecture notes \href{https://www.cs.cmu.edu/~avrim/451f11/lectures/lect1004.pdf}{here}. It is a good resource if you are further interested in these topics.
+
+    \vspace{5mm}
+    There is another important question regarding hashing: if we fix the set $S$, can we find a hash function h such that all lookups are constant-time? The answer is yes, and such hash functions are known as \textbf{perfect}. There was a big open question for some time about whether we could achieve perfect hashing with $\mathcal{O}(n)$ space, until it was finally achieved by exploiting the properties of universal hashing.
+
+    \vspace{5mm}
+    Finally, one more application of hashing I found interesting. Suppose we have a long sequence of items and we want to see how many different items are in the list. What is a good way of doing that?
+
+    \vspace{5mm}
+    One way is we can create a hash table, and then make a single pass through our sequence, for each
+    element doing a lookup and then inserting if it is not in the table already. The number of distinct
+    elements is just the number of inserts.
+
+    \vspace{5mm}
+    Now what if the list is really huge, so we don’t have space to store them all, but we are OK with just an approximate answer. E.g., imagine we are a router and watching a lot of packets go by, and we want to see (roughly) how many different source IP addresses there are.
+
+    \vspace{5mm}
+    Here is a neat idea: say we have a hash function h that behaves like a random function, and let’s think of $h(x)$ as a real number between 0 and 1. One thing we can do is just keep track of the minimum hash value produced so far (so we won’t have a table at all). E.g., if keys are 3,10,3,3,12,10,12 and $h(3) = 0.4,h(10) = 0.2,h(12) = 0.7$, then we get 0.2.
+
+    \vspace{5mm}
+    The point is: if we pick $N$ random numbers in $[0, 1]$, the expected value of the minimum is $1/(N +1)$. Furthermore, there’s a good chance it is fairly close (we can improve our estimate by running several hash functions and taking the median of the minimums).
+
+\pagebreak
+\section*{Appendix}
+
+\begin{lstlisting}
+      import matplotlib.pyplot as plt
+      from math import comb
+      import numpy as np
+    
+      # Function to calculate the probability
+      def probability(k, n):
+          return n * comb(n, k) * (1/n**k)
+    
+      # Fixed number of bins/balls
+      n = 10
+    
+      # Calculate probabilities for various values of k
+      k_values = np.arange(1, n+1)  # Considering values from 1 to n
+      probabilities = [probability(k, n) for k in k_values]
+    
+      # Plotting the probabilities
+      plt.figure(figsize=(10, 6))
+      plt.plot(k_values, probabilities, marker='o')
+      plt.yscale('log')  # Set y-axis to log scale
+      plt.xlabel('k (number of balls in a bin)')
+      plt.ylabel('Probability (log scale)')
+      plt.title('Probability of At Least k Balls in a Bin  (n = 10)')
+      plt.grid(True)
+      plt.show()
+\end{lstlisting}
+
+
+\end{document}

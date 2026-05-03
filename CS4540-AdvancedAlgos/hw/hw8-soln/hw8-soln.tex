@@ -1,0 +1,486 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+%Creating algorithms
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black!30!Dandelion,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\Var}[1]{\operatorname{Var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+% rainbow text (based on the gradient-text package)
+\makeatletter
+\ExplSyntaxOn
+\clist_new:N\l_gtext_First_clist
+\clist_new:N\l_gtext_Last_clist
+\int_new:N\l_gtext_MaxIndex_int
+\int_new:N\l_gtext_Ratio_int
+\newcommand{\gr@dient}[8]{
+  \int_set:Nn\l_gtext_MaxIndex_int{\int_eval:n{\str_count:n{#1}}}
+  \int_step_inline:nnn{1}{\l_gtext_MaxIndex_int}{
+      \exp_args:Ne\str_if_eq:nnTF{\str_item:Nn{#1}{##1}}{~}{}{
+        \int_set:Nn\l_gtext_Ratio_int{\int_eval:n{\l_gtext_Ratio_int+1}}
+      }
+        \color_select:nn{#8}{
+          \int_eval:n{(\int_use:N\l_gtext_Ratio_int*#5+(\l_gtext_MaxIndex_int-##1)*#2)/\l_gtext_MaxIndex_int},
+          \int_eval:n{(\int_use:N\l_gtext_Ratio_int*#6+(\l_gtext_MaxIndex_int-##1)*#3)/\l_gtext_MaxIndex_int},
+          \int_eval:n{(\int_use:N\l_gtext_Ratio_int*#7+(\l_gtext_MaxIndex_int-##1)*#4)/\l_gtext_MaxIndex_int}
+      }\str_item:Nn{#1}{##1}
+  }
+}
+
+\NewDocumentCommand\gradient{mmmm}{{
+  \clist_set:Nn\l_gtext_First_clist {#3}
+  \clist_set:Nn\l_gtext_Last_clist {#4}
+  \gr@dient{#2}
+  {\clist_item:Nn\l_gtext_First_clist{1}}
+  {\clist_item:Nn\l_gtext_First_clist{2}}
+  {\clist_item:Nn\l_gtext_First_clist{3}}
+  {\clist_item:Nn\l_gtext_Last_clist{1}}
+  {\clist_item:Nn\l_gtext_Last_clist{2}}
+  {\clist_item:Nn\l_gtext_Last_clist{3}}
+  {#1}
+}}
+\ExplSyntaxOff
+
+\NewDocumentCommand\gradientRGB{mmm}{
+  \gradient{RGB}{#1}{#2}{#3}
+}
+
+\NewDocumentCommand\gradientHSB{mmm}{
+  \gradient{HSB}{#1}{#2}{#3}
+}
+\makeatother
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 8 Solutions}
+\newcommand{\hmwkDueDate}{April 10, 2024}
+\newcommand{\hmwkDueTime}{11:59pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{ }
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy} 
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course. \textcolor{Maroon}{EC problems are all-or-nothing. Furthermore, you must complete EC problems alone (i.e.\ without external resources or collaborators)}
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+
+% https://epubs.siam.org/doi/10.1137/S0097539702402676
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\subsection*{\Exercise}
+    \textit{(Erickson)} Let \( G = (V, E) \) be an undirected graph, each of whose vertices is colored either \textcolor{red!100}{red}, \textcolor{ForestGreen!100}{green}, or \textcolor{RoyalBlue!100}{blue}. An edge in \( G \) is \textit{boring} if its endpoints have the same color, and \textit{interesting} if its endpoints have different colors. The \textit{most interesting 3-coloring} is the 3-coloring with the maximum number of interesting edges, or equivalently, with the fewest boring edges. Computing the most interesting 3-coloring is \textsf{NP-hard}, because the standard 3-coloring problem is a special case.
+    
+    \begin{enumerate}
+
+        \item Let \textsf{\gradient{RGB}{wow}{255,0,0}{0,0,255}}$(G)$ denote the number of interesting edges in the most interesting 3-coloring of \( G \). Suppose we assign each vertex in \( G \) a random color in \{red, green, blue\}. Prove that the expected number of interesting edges is at least \( \frac{2}{3} \textsf{\gradient{RGB}{wow}{255,0,0}{0,0,255}}(G) \).
+        \item Prove that with high probability, the expected number of interesting edges is at least \( \frac{1}{2} \textsf{\gradient{RGB}{wow}{255,0,0}{0,0,255}}(G) \). (\textit{Hint}: Use Chebyshev’s inequality. But wait... How do we know that we \textbf{can} use Chebyshev’s inequality?)
+        \item Let \textsf{\gradient{RGB}{snooze}{20,20,20}{200,200,200}}$(G)$ denote the number of boring edges in the most interesting 3-coloring of a graph \( G \). Prove that it is \textsf{NP-hard} to approximate \textsf{\gradient{RGB}{snooze}{20,20,20}{200,200,200}}$(G)$ within a factor of \( 2024^{2024} \).
+    \end{enumerate}
+    
+    \begin{figure}[htbp]
+        \centering
+        \captionsetup{width=.8\linewidth}
+        
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \captionsetup{width=.8\linewidth}
+            \includegraphics[width=0.7\linewidth]{images/boring-3coloring.pdf}
+            \caption{A somewhat boring 3-coloring.}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \captionsetup{width=.8\linewidth}
+            \includegraphics[width=0.7\linewidth]{images/interesting-3coloring.pdf}
+            \caption{The most interesting 3-coloring.\footnotemark{}}
+            \label{fig:grid_cfg}
+        \end{subfigure}
+        \caption{Here \textsf{\gradient{RGB}{wow}{255,0,0}{0,0,255}}$(G) = 21$ and \textsf{\gradient{RGB}{snooze}{20,20,20}{200,200,200}}$(G) = 1$.}
+        \label{fig:max-interesting}
+    \end{figure}
+    \footnotetext{Unless I missed something and this graph is actually 3-colorable.}
+
+\subsection*{Solution}
+    \begin{enumerate}
+        \item When a vertex is randomly colored, each color has a \( \frac{1}{3} \) probability of being chosen. There are 3 choices for the color of the first endpoint. For the second endpoint, there are 2 choices (out of 3) that are different from the first endpoint's color. So, the probability that an edge is interesting is \( \frac{3 \times 2}{3 \times 3} = \frac{2}{3} \).
+    
+        \vspace{3mm}
+        By linearity of expectation, the expected number of interesting edges when vertices are randomly colored is \( \frac{2}{3}|E|  \ge \frac{2}{3}\textsf{\gradient{RGB}{wow}{255,0,0}{0,0,255}}(G)\).
+        \item 
+        Chebyshev's inequality states that for any random variable \( Y \) with mean \( \mu \) and variance \( \sigma^2 \), and for any \( k > 0 \),
+        \[ \Pr{|Y - \mu| \geq k} \leq \frac{\sigma^{2}}{k^2} \]
+        To apply Chebyshev's inequality, we need to know the variance of the number of interesting edges. We denote the random variable \( X_e \) as 1 if edge \( e \) is interesting, and 0 otherwise. Thus, the total number of interesting edges is \( X = \sum_{e \in E} X_e \), where each \( X_e \) is a Bernoulli variable with probability \( \frac{2}{3} \).
+
+        \vspace{3mm}
+        The variance of \( X_e \) is \( \text{Var}(X_e) = p(1-p) = \frac{2}{3} \times \frac{1}{3} = \frac{2}{9} \). 
+
+        \vspace{3mm}
+        Although the variables $X_e$ are not mutually independent, they are pairwise independent. Indeed, if two edges are disjoint this is immediate, and if two edges share a vertex, say $e = (u,v)$ and $f = (u,w)$, then conditioning on the color of $u$, the events that $v$ and $w$ receive colors different from $u$ are independent, each with probability $2/3$. Thus
+$$\Pr{X_e = 1 \text{ and } X_f = 1} = \frac{4}{9}
+= \Pr{X_e = 1}\Pr{X_f = 1},$$
+so $\operatorname{Cov}(X_e, X_f) = 0$.
+
+\vspace{3mm}
+Using
+$$
+\operatorname{Var}\left(\sum_{e \in E} X_e\right)
+=
+\sum_{e \in E}\operatorname{Var}(X_e)
++
+2\sum_{e < f}\operatorname{Cov}(X_e, X_f),
+$$
+and since all covariance terms are zero, the total variance is the sum of individual variances:
+$$
+\operatorname{Var}(X) = \sum_{e \in E} \operatorname{Var}(X_e) = \frac{2}{9}|E|.
+$$
+        We can apply this to \( X \) with \( \mu = \frac{2}{3}|E| \) and \( \sigma^2 = \frac{2}{9}|E| \), and choose \( k = \frac{1}{6}|E|\). Then the probability that $X$ diverges from its mean by more than \( k = \frac{1}{6}|E|\) is less than $\frac{8}{|E|}$.
+
+        \vspace{2mm}
+        Therefore, with probability at least $1 - \frac{8}{|E|}$,
+$$
+X \ge \frac{1}{2}|E| \ge \frac{1}{2}\textsf{\gradient{RGB}{wow}{255,0,0}{0,0,255}}(G).
+$$
+        \item
+        
+        % Let $\textsf{3COLOR}_{\textsf{MI}}$ be the problem of computing the most interesting 3-coloring.
+        
+        First, note that computing $\textsf{\gradient{RGB}{snooze}{20,20,20}{200,200,200}}(G)$ is \textsf{NP-hard} by a reduction from $\textsf{3COLOR}$, since
+        \begin{align*}
+            \exists \ \text{3-coloring of $G$} &\rightarrow \textsf{\gradient{RGB}{snooze}{20,20,20}{200,200,200}}(G) = 0 \\
+            \not\exists \ \text{3-coloring of $G$} &\rightarrow \textsf{\gradient{RGB}{snooze}{20,20,20}{200,200,200}}(G) \ge 1
+        \end{align*}
+        But now suppose we create an updated graph $G'$ as follows. Let $G'$ be the union of $2024^{2024} + 1$ copies of $G$, with additional edges added as follows: for every edge $uv$ in $G$, add an edge from \textit{every} copy of $u$ to \textit{every} copy of $v$. Then 
+        % \vspace{3mm}
+        % These two observations imply that \( \alpha(G') = 31337 \cdot \alpha(G) \). If we could compute some integer \( k \) such that \( k - 31337 \leq \alpha(G') \leq k + 31337 \), then \( \alpha(G) = \alpha(G')/31337 = \left\lceil k/31337 \right\rceil \). Thus, if we could compute such an integer \( k \) in polynomial time, we could compute \( \alpha(G) \) in polynomial time. But computing \( \alpha(G) \) is \textsf{NP-hard!}
+        \begin{align*}
+            \exists \ \text{3-coloring of $G'$} &\rightarrow \textsf{\gradient{RGB}{snooze}{20,20,20}{200,200,200}}(G') = 0 \\
+            \not\exists \ \text{3-coloring of $G'$} &\rightarrow \textsf{\gradient{RGB}{snooze}{20,20,20}{200,200,200}}(G') \ge 2024^{2024} + 1
+        \end{align*}
+        Thus, we have a polynomial-time reduction of \textsf{3COLOR} to an $\epsilon$-approximation of \textsf{\gradient{RGB}{snooze}{20,20,20}{200,200,200}}.
+    \end{enumerate}
+
+
+\subsection*{\Exercise \footnote{This could've been an exam problem!}}
+    Define a \textit{triangle matching} in an undirected graph \( G \) as a collection of vertex-disjoint triangles (cycles of length 3) in \( G \). A triangle matching is \textit{maximal} if it is not a proper subgraph of a larger triangle matching in the same graph.
+    \begin{enumerate}[label=(\alph*)]
+        \item Let \( M \) and \( M' \) be two arbitrary maximal triangle matchings in the same underlying graph \( G \). Prove that \( |M| \leq 3 \cdot |M'| \).
+        \item Finding the \textit{largest} triangle matching in a given graph is \textsf{NP-hard}. Describe and analyze a fast 3-approximation algorithm for this problem.
+        \item Finding the \textit{smallest maximal} triangle matching in a given graph is \textsf{NP-hard}. Describe and analyze a fast 3-approximation algorithm for this problem.
+    \end{enumerate}
+
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.35\linewidth]{images/triangle_matching.pdf}
+        \caption{A maximal (but not maximum!) triangle matching}
+        \label{fig:triangle-matching}
+    \end{figure}
+    
+\subsection*{Solution}
+\begin{enumerate}
+    \item Consider an arbitrary triangle $\Delta$ in $M$. If $\Delta$ does not share a vertex with any triangle in $M'$, then $M' + \Delta$ is a triangle matching, contradicting our assumption that $M'$ is maximal. We conclude that every triangle in $M$ shares at least one vertex with a triangle in $M'$.
+    
+    \vspace{3mm}
+    On the other hand, consider an arbitrary triangle $\Delta'$ in $M'$. Each vertex of $\Delta'$ is a vertex of at most one triangle in $M$, because the triangles in $M$ are vertex-disjoint. Thus, the number of triangles in $M$ is at most the number of vertices in $M'$.
+    
+    % \noindent \textbf{Rubric:} Half points for every triangle in $M$ touches a triangle in $M'$ + half points for each triangle in $M$ touches at most three triangles in $M'$.
+    \item \noindent \textbf{Solution:} The following brute-force algorithm computes a maximal triangle matching in \(O(VE)\) time.
+
+    \begin{tcolorbox}
+    \small
+    \begin{algorithmic}
+    % \caption{Dumb3DMatching(G)}
+    \State unmark every vertex of \(G\)
+    \State \(M \gets \emptyset\)
+    \ForAll{vertices \(v\)}
+        \ForAll{edges \(uv\)}
+            \ForAll{edges \(vw\)}
+                \If{\(u \neq w\) and \(uw \in E\) and \(u, v, w\) are all unmarked}
+                    \State mark \(u, v, w\)
+                    \State add \(uvw\) to \(M\)
+                \EndIf
+            \EndFor
+        \EndFor
+    \EndFor
+    \State \Return \(M\)
+    \end{algorithmic}
+    \end{tcolorbox}
+
+    Let \(M\) denote the triangle matching computed by our algorithm, and let \(\text{OPT}\) denote the largest triangle matching in \(G\). Part (a) immediately implies \(|\text{OPT}|/|M| \leq 3\).
+
+    \item Same algorithm as part (b). 
+    
+    \vspace{2mm}
+    Let \( M \) denote the triangle matching computed by our algorithm, and let \( \text{OPT} \) denote the smallest maximal triangle matching in \( G \). Part (a) immediately implies \( \left| M \right| / \left| \text{OPT} \right| \leq 3. \)
+
+\end{enumerate}
+
+
+
+\subsection*{\Exercise}
+    Find a polynomial-time $4/3$-approximation to instances of metric-TSP where distances are either $1$ or $2$.
+
+    \vspace{3mm}
+    \textit{Hint:} The 2-matching problem (i.e. find a minimum weight subset of edges $M$ such that each node is adjacent to exactly $2$ edges in $M$) can be solved in polynomial time.
+    
+\subsection*{Solution}
+    A 2-matching (or more commonly a 2-factor) is a collection of disjoint cycles that spans the graph. The Min-cost 2-matching returns the lowest cost among all 2-matchings. A TSP tour (a 2-matching that contains exactly one cycle), is a type of 2-matching, so $\text{cost}(2-matching)\leq \text{cost}(OPT)$
+
+    \vspace{3mm}
+    Say we run our 2-matching algorithm, and we have $k$ cycles returned. We transform this into a TSP tour as follows: from each cycle $i$, pick an edge $e_i = (v_{i,1}, v_{i,2})$. We delete these $k$ edges to obtain a collection of paths. We now add edges between these paths to get a final cycle, that is, add edges $(v_{1,2}, v_{2,1}), (v_{2,2}, v_{3,1}), (v_{3,2}, v_{4,1}), \ldots (v_{k,2}. v_{1,1})$. This results in a TSP tour.
+
+    \vspace{3mm}
+    The total cost is the cost of the $2-matching$, minus the cost of the deleted edges, plus the cost of the added edges. The cost of the deleted edges is at least 1 per edge, and the cost of the added edges is at most 2 per edge. Since we add and delete $k$ edges, we increase the cost by at most $2k -k = k$. Since a cycle needs at least $3$ vertices, there are at most $n/3$ cycles. Also, since each edge has cost at least $1$, $n \leq \text{cost}(OPT)$. Thus,
+    $$\begin{aligned}
+        \text{cost}(ALG) &= \text{cost(2-matching)} - \text{cost(deleted\ edges)} + \text{cost(added\ edges)} \\
+        &\leq \text{cost}(OPT) + k \leq \text{cost}(OPT) + n/3 \leq \text{cost}(OPT) + \text{cost}(OPT)/3 \\
+        &= 4/3 \text{cost}(OPT)
+    \end{aligned}$$
+
+
+\subsection*{\Exercise \ \textcolor{Maroon}{(EC)}}
+    You (hopefully) have heard of the \textbf{Maximum Independent Set (\textsf{MIS})} problem from previous courses, where the goal was to find an maximum-cardinality independent set $V'$ of vertices in some graph $G$. (If not, refer to the \hyperref[sec:appendix]{Appendix} for more information)
+
+    \vspace{3mm}
+    In the \textbf{Maximum Independent Set on Unit Disk Graph ($\textsf{MIS}_{\textsf{UDG}}$)} problem, we are given a set \( S \) of unit-diameter disks in the plane. The goal is to find a maximum-cardinality subset \( S' \subseteq S \) of disks, such that no two disks in \( S' \) overlap. (We say that disks that only touch on the boundary do not overlap). As with \textsf{MIS}, this problem is also $\textsf{NP-Complete}$.
+    
+    \begin{enumerate}
+       \item \textcolor{Maroon}{\textit{(8 pts)}} Consider the following greedy algorithm: start with \( S' = \emptyset \) and process the disks in \( S \) one-by-one, in any order. For each such disk \( C \), if \( S' \cup \{C\} \) is a feasible solution, then add \( C \) to \( S' \). What is the approximation factor of this algorithm? (Give the best upper bound you can.)
+        
+       \item \textcolor{Maroon}{\textit{(4 pts)}} Let \( 0 < \varepsilon < 1 \) be some constant. Assume that we are given a grid whose lines are spaced \( 1/\varepsilon \) units apart. Assume further that no disk in the input set \( S \) intersects the grid lines. Give a polynomial time algorithm for solving the problem exactly in this case.
+        
+       \item \textcolor{Maroon}{\textit{(8 pts)}} Derive and analyze a PTAS for the $\textsf{MIS}_{\textsf{UDG}}$ problem.
+
+       \vspace{2mm}
+        \textit{Hint:} Consider a grid with \textit{random offset}: Take a grid of lines spaced \( \frac{1}{2} \) apart, such that the origin is at the intersection of a horizontal and vertical grid line. Pick a shift/offset \( L \) uniformly at random from \( [0, \frac{1}{2}) \), and shift the grid vertically and horizontally by an distance \( L \). (Equivalently, consider the grid of spacing \( \frac{1}{2} \) such that the point \( (L, L) \) is at the intersection of two grid lines.) What is the probability that a disk is intersected by a grid line? 
+    \end{enumerate}
+    This problem has applications in VLSI chip manufacturing (Again, refer to the \hyperref[sec:appendix]{Appendix} for more information.)
+
+\subsection*{Solution}
+    \begin{enumerate}
+        \item 5-Approximation. Easy to show (think of a hexagonal packing). More specifically, every disk in the optimal solution either appears in the greedy solution or overlaps some disk in the greedy solution. Moreover, any disk in the greedy solution can overlap at most 5 disks in the optimal solution, since those disks must be disjoint unit-diameter disks whose centers lie within distance $1$ of its center. Thus $|OPT| \le 5|ALG|$.
+
+        \item Consider any grid box containing at least one disk. This grid box is of dimensions $\frac{1}{\epsilon} \times \frac{1}{\epsilon}$, so it can contain at most $k = \mathcal{O}\left(\frac{1}{\epsilon^{2}}\right)$ disks such that no two disks overlap. Thus we can solve the $\textsf{MIS}_{\textsf{UDG}}$ problem when restricted to this grid box simply by considering every subset of disks of size $\le k$ and checking to see if any of them overlap. The total number of subsets we have to consider is $$\sum_{i = 1}^{k} \binom{n}{i} = \mathcal{O}(n^{k})$$ and the time it takes to check if any of them overlap is also $\mathcal{O}(n^{k})$.
+
+        \vspace{3mm}
+        There are at most $|S|$ grid boxes containing at least one disk. Since no disk intersects a grid line, disks in different boxes cannot overlap, so we solve each box independently and take the union of the solutions. Thus we have a poly time algorithm.
+
+        \item Pick a random grid offset with spacing $\frac{1}{\epsilon}$. For any disk, the probability that it is hit by a vertical grid line is at most $\epsilon$, and the probability that it is hit by a horizontal grid line is at most $\epsilon$. Thus, by union bound, each disk is hit by some grid line with probability at most $2\epsilon$. Remove those circles. Run the algorithm from part (b). In expectation, at least a $(1 - 2\epsilon)$ fraction of the optimal solution remains, so the returned solution has size at least $(1 - 2\epsilon)|OPT|$ in expectation. Replacing $\epsilon$ by $\epsilon/2$ gives a $(1 - \epsilon)$-approximation, and thus a PTAS.
+    \end{enumerate}
+
+% next time change the weighting. Either weight it equally on all three, or equal for the first two and more weight on the last part if you don't give the big hint.
+
+
+\pagebreak
+
+\section*{Appendix}\label{sec:appendix}
+
+    \subsection*{Maximum Independent Set}
+        An \textbf{independent set} in a graph is a subset of the vertices with no edges between them. Finding the largest independent set in an arbitrary graph is famously \textsf{NP-hard}. But in some special classes of graphs, we can find largest independent sets quickly. In particular, when the input graph is a tree with $n$ vertices, we can actually compute the largest independent set in O($n$) time using \textbf{dynamic programming}, as follows:
+
+        \vspace{3mm}
+        For any node $v$ in $T$ , let $MIS(v)$ denote the size of the largest independent set in the subtree rooted at $v$. Any independent set in this subtree that excludes $v$ itself is the union of independent sets in the subtrees rooted at the children of $v$. On the other hand, any independent set that includes $v$ necessarily excludes all of $v$’s children, and therefore includes independent sets in the subtrees rooted at $v$’s grandchildren. Thus, the table $MIS$ obeys the following recurrence, which we can compute using a post-order traversal on the tree (here the set $C(v)$ contains the children of $v$):
+        $$MIS(v) = \max\left\{\sum_{w \in C(v)} MIS(w),\ 1 + \sum_{w \in C(v)}\sum_{x \in C(w)}MIS(x)\right\}$$
+        \begin{figure}[htbp]
+            \centering
+            \includegraphics[width=0.8\linewidth]{images/mis.png}
+            \caption{Computing maximum independent set in a tree. }
+            \label{fig:enter-label}
+        \end{figure}
+
+    \subsection*{Configurability in VLSI Chip Manufacturing\footnote{I have limited knowledge in this field, so forgive me if I abuse some terminology.}}
+    We begin with a motivating question: Why is it so hard to create large chips? One reason is because of precision. It is very hard to avoid defects in the creation of these chips. Thus, a construct called \textbf{configurability} was introduced to VLSI chip design.
+    
+    \vspace{3mm}
+    In manufacturing, chips are regions of a larger unit called a ``wafer." Ordinarily after fabrication, a wafer is tested and faulty chips are marked; then the wafer is diced, the faulty chips are discarded, and the functional chips are packaged. However, since the entire chip is being manufactured at once, this is wasteful because even if only a small portion of the chip is defective, it must be entirely discarded. 
+
+    \vspace{3mm}
+    To use configurability, this process is changed somewhat. Special circuitry is added that enables adjacent chips to be connected. Then, after the wafer is tested, adjacent functional chips are connected into a group and the entire group is used as a single enlarged chip. In this way, even if a smaller chips becomes defective, the adjacent chips can be rewired so that they can still be used in the larger chip.
+
+    \vspace{3mm}
+    A natural problem that arises from this setup is packing a maximal number of working chips on a wafer. As an example, consider the Cartesian grid representing a wafer, shown below. Wherever there is a $2 \times 2$ grid of non-defective chips, these grid cells can be wired together. This potential grouping of chips can be visualized as a unit disk which overlaps with the four grid cells that are being wired together. For example, in the figure below, the four grid cells in the upper left corner could be wired together, so we would put a unit disk at (1, 4) with radius 1.
+
+    \begin{center}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \includegraphics[width=.8\linewidth]{images/mis_udg1.pdf}
+    \end{minipage}%
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \includegraphics[width=.8\linewidth]{images/mis_udg2.pdf}
+      % \captionof{figure}{Another figure}
+    \end{minipage}
+    \begin{minipage}{.3\textwidth}
+      \centering
+      \includegraphics[width=.8\linewidth]{images/mis_udg3.pdf}
+    \end{minipage}
+    \end{center}
+
+    Continuing this process for every possible wiring, we obtain the collection of disks shown in Figure \ref*{disk-setup}. Overlapping unit disks represents two wirings which conflict with each other because they use the same chips. In this scenario, the $\textsf{MIS}_{\textsf{UDG}}$ represents the maximum number of non-conflicting wirings, as shown in Figure \ref*{disk-solution}.
+
+    \begin{figure}[htbp]
+        \centering
+        \captionsetup{width=.8\linewidth}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \captionsetup{width=.8\linewidth}
+            \includegraphics[width=0.7\linewidth]{images/mis_udg4.pdf}
+            \caption{Unit disks representing chip wirings.}
+            \label{disk-setup}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \centering
+            \captionsetup{width=.8\linewidth}
+            \includegraphics[width=0.7\linewidth]{images/mis_udg5.pdf}
+            \caption{The $\textsf{MIS}_{\textsf{UDG}}$ of unit disks.}
+            \label{disk-solution}
+        \end{subfigure}
+        \label{fig:ugb_sol}
+    \end{figure}
+
+
+\end{document}
+
+
+
+    
+% \subsection*{\Exercise \ \textcolor{Maroon}{(EC)}}
+%     \textcolor{Maroon}{\textit{(20 pts)}} The following problem arises in telecommunications networks, and is known as the \textbf{SONET ring loading} problem. The network consists of a cycle on $n$ nodes, numbered $0$ through $n-1$ clockwise around the cycle. Some set $C$ of calls is given; each call is a pair $(i, j)$ originating at node $i$ and ending at node $j$. The call can be routed either clockwise or counterclockwise around the ring. The objective is to route the calls so as to minimize the total load on the network. The load $L_i$ on link $(i, i + 1 \pmod{n})$ is the number calls routed through the link, and the total load is $\max_{1\leq i\leq n} L_i$. Give a 2-approximation algorithm for the SONET ring loading problem.
+
+% \subsection*{Solution}
+%     A natural solution is to route a call from $i$ to $j$ clockwise or counterclockwise depending on which is shorter.
+    
+%     \vspace{3mm}
+%     Say $n$ is even. Let $e_i = (i,i+1)$ be the link with the largest load $L_i = cost(ALG)$. We consider the edge on the opposite side of the cycle, $e_{i + n/2 \mod n}$. Note that every call that passes through $e_i$ in ALG cannot also pass through $e_{i + n/2 \mod n}$ - otherwise the total length of the route would be at least $n/2$, and our greedy algorithm always picks the shortest path. Thus choosing the opposite orientation routing would force that call through $e_{i + n/2 \mod n}$. OPT must route all $L_i$ calls, and each one passes through one of $e_i$ or $e_{i + n/2 \mod n}$. Thus one of those two must have load at least $L_i/2$ in OPT. Thus our algorithm, which has cost $L_i$ is a 2-approximation.
+    
+%     \vspace{3mm}
+%     If $n$ is odd, the argument is essentially the same, but we replace $e_{i + n/2 \mod n}$ with either $e_{i + (n-1)/2 \mod n}$ or $e_{i + (n+1)/2 \mod n}$. A route that passes through $e_i$ cannot pass through either of the above edges. The rest of the analysis follows.
+
+
+
+%\subsection*{\Exercise}
+%We described a (3/2)-approximation algorithm for the metric traveling salesman problem, which asks for the minimum-cost Hamiltonian cycle in a graph whose edge weights satisfy the triangle inequality. Here, we consider computing minimum-cost Hamiltonian \textbf{paths}. Our input consists of a graph \( G \) whose edges have weights that satisfy the triangle inequality. Depending upon the problem, we are also given zero, one, or two endpoints.
+
+%\begin{enumerate}[label=(\alph*)]
+%  \item If our input includes zero endpoints, describe a (3/2)-approximation to the   problem of computing a minimum cost Hamiltonian path.
+%  \item If our input includes one endpoint \( u \), describe a (3/2)-approximation to the   problem of computing a minimum cost Hamiltonian path that starts at \( u \).
+%\end{enumerate}
+
+% To solve this problem, we can modify Christofides’ algorithm slightly. Here are the steps:
+
+% Compute a minimum spanning tree T of the graph G.
+% Find the set V' of vertices in T with odd degree.
+% Find a minimum weight perfect matching M in the induced subgraph given by the vertices from V'.
+% Combine the edges of T and M to form a multigraph H.
+% Form an Eulerian circuit in H.
+% Convert the Eulerian circuit into a Hamiltonian path by skipping any vertex that has already been visited.
+% This algorithm gives a 3/2-approximation because the cost of the minimum spanning tree is a lower bound on the cost of the Hamiltonian path, and the cost of the minimum weight perfect matching is at most 1/2 times the cost of the Hamiltonian path.
+
+% (b) 3/2-approximation for Hamiltonian Path with One Fixed Endpoint
+% To solve this problem, we can again modify Christofides’ algorithm. Here are the steps:
+
+% Compute a minimum spanning tree T of the graph G.
+% Find the set V' of vertices in T with odd degree, excluding the fixed endpoint u.
+% Find a minimum weight perfect matching M in the induced subgraph given by the vertices from V'.
+% Combine the edges of T and M to form a multigraph H.
+% Form an Eulerian circuit in H, starting and ending at u.
+% Convert the Eulerian circuit into a Hamiltonian path by skipping any vertex that has already been visited.
+% This algorithm also gives a 3/2-approximation because the cost of the minimum spanning tree is a lower bound on the cost of the Hamiltonian path, and the cost of the minimum weight perfect matching is at most 1/2 times the cost of the Hamiltonian path.

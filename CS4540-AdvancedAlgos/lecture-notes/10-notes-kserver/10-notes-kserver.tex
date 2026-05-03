@@ -1,0 +1,170 @@
+\documentclass[14pt]{extreport}
+\usepackage[T1]{fontenc}
+\usepackage[left=1in, right=1in, top=1in, bottom=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{matrix, positioning}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Cases Environment
+\newlist{Cases}{enumerate}{3}
+\setlist[Cases]{leftmargin = .25in, label = {Case \arabic*.}, topsep = 0.01in, itemsep = 0.04in, itemindent = .5in, parsep = 0in}
+
+%Custom Title Fields
+\newcommand{\lectTitle}{Lecture 10 Notes}
+\newcommand{\lectTime}{March 7, 2022}
+\newcommand{\lectClass}{Advanced Algorithms}
+\newcommand{\lectClassInstructor}{Dana Randall}
+\newcommand{\lectSection}{Spring 2024}
+\newcommand{\lectAuthorName}{Sarthak Mohanty, Aadit Trivedi}
+
+
+\title{
+    \vspace{1.75in}
+    \textbf{\lectClass:\\ \lectTitle}\\
+    \vspace{0.1in}\large{\textit{\lectClassInstructor\ \lectSection}}
+    \vspace{2in}
+\author{\textbf{Sarthak Mohanty} \\ \textbf{Aadit Trivedi}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\section*{The $k$-server problem}
+    We continue our discussion of online algorithms with perhaps the most influential online problem. It has been a major driving force for the development of the area online algorithms. 
+
+    \vspace{3mm}
+    The problem is as follows: Consider a (potentially symmetric) metric space $\mathcal{M}$ equipped with a distance function $d$. There are $k$ servers in this space. The input is a series of points in $\mathcal{M}$, $\sigma = \sigma_{1}\dots \sigma_{n}$. The goal is to move a server $j$ to point $\sigma_{i}$ to serve the request while minimizing the total distance moved by all servers.
+
+    \vspace{3mm}
+    The first thing to note is that this problem is objectively more difficult than the paging problem discussed last class. To see this, let $\mathcal{M}$ be the \textit{uniform} metric space over $n$ points. This is the metric space where the distance between each pair of points is 1. Note that this problem is \underline{equivalent to the paging problem} (with $n$ pages in slow memory and $k$ pages in fast memory)
+
+\section*{Lower Bounds}
+    We can assume that \(M\) has at least \(n = k + 1\) points (else the problem is trivial). We fix our attention to any \(n\) of the points in \(M\) and call them \(S = \{1,2,\ldots,k+1\}\). Let the \(k\) servers be at the points \(1,2,\ldots,k\) and other point is ``free''.
+    
+    \vspace{5mm}
+    Now we need to show an adversary \(ADV\) and a request sequence \(\sigma\) such that for any (potentially randomized) online adversary \(A\),
+    \[ A(\sigma) \geq k \cdot ADV(\sigma). \]
+    Instead, we will give a set of \(k\) adversaries \(ADV_1,\ldots,ADV_k\) such that \(A(\sigma) \geq \sum_{i=1}^{k} ADV_i(\sigma)\). This implies that at least one of the \(ADV_i\)'s would satisfy the above condition, which in turn would imply the theorem.
+    
+    \vspace{5mm}
+    The request sequence \(\sigma\) (for both the deterministic and randomized cases) simply causes the next request at the point in \(S\) not covered by \(A\)'s servers. Thus \(A\) has to move one of its servers at every request.
+    
+    \vspace{5mm}
+    We make one further assumption: the adversary's servers can have any initial position. This is purely for notational convenience, as this would give us at most an additional constant additive cost (to move the adversary's servers at the beginning). This can be swallowed up in the definition of the competitive ratio. Thus the adversary \(ADV_i\) starts with its servers on the points \(S - \{i\}\). This placement of the servers gives us two properties, which we shall try to maintain invariant over time.
+    
+    \begin{enumerate}
+        \item All the adversaries \(ADV_i\) have a server at the point of the next request (i.e., at the point not covered by \(A\)).
+        \item For every request covered by the servers of \(A\), there is a unique \(ADV_j\) which does not have a server at that point.
+    \end{enumerate}
+    
+    At the first request \(\sigma_1\), let \(A\) move server from \(j\) to \(k+1\) to serve it. In reply, \(ADV_i\) moves its server from \(k+1\) to \(j\). The cost incurred by both is the same (as we consider the metric space to be symmetric), and is the properties listed above are maintained. The new state of the algorithm, and the adversaries is isomorphic to the initial state and hence these properties can be restored. So for any \(\sigma\), we have \(A(\sigma) = \sum_{i=1}^{k} ADV_i(\sigma)\).
+
+\subsection*{Server On A Line}
+
+In the analysis of online algorithms it is often impossible to bound the cost of the online algorithm in terms of the optimal cost independently for every single request. Instead, one has to find a way to distribute the cost of an expensive operation the online algorithm performs across several requests.
+
+\vspace{5mm}
+One way to do this is by using a potential function $\Phi : \{0, 1, \ldots, n\} \rightarrow \mathbb{R}_{\geq 0}$, where $\Phi(i)$ denotes the value of the potential function after request $i$ and $\Phi(0) = 0$. In some way, $\Phi$ is a savings account for cost which is not allowed to run negative and which can be used to store earlier savings to finance more expensive operations later on.
+\footnote{For an interesting modern perspective on this, see this \href{https://www.quantamagazine.org/researchers-refute-a-widespread-belief-about-online-algorithms-20231120/}{Quanta Magazine article on online algorithms}.}
+
+\vspace{5mm}
+Before proving the competitive ratio, we must first define the \textbf{Double Coverage (DC)} algorithm for servers on a line. When a request is made at point $r$:
+\begin{itemize}
+    \item \textbf{Case 1:} If the request $r$ falls outside the span of all servers (i.e., strictly to the left of the leftmost server or to the right of the rightmost server), the closest server moves to $r$.
+    \item \textbf{Case 2:} If the request $r$ falls between two adjacent servers, say $s_i$ and $s_{i+1}$, both servers move towards $r$ at the exact same speed until one of them reaches $r$. 
+\end{itemize}
+
+\textbf{Proof:} We assume that the actions take place in the following order: when the request is made, the adversary makes his move and then DC makes its move. We want a potential function $\Phi$ which has the following properties:
+
+\begin{enumerate}
+    \item $\Phi \geq 0$
+    \item When the adversary incurs a cost $x$, the change in potential, $\Delta\Phi \leq k \cdot x$.
+    \item When the online algorithm incurs a cost $x$, the change in potential, $\Delta\Phi \leq -x$.
+\end{enumerate}
+
+\textbf{Lemma 5.5} \textit{The existence of such a potential function $\Phi$ implies that the Double Coverage algorithm is $k$-competitive.}
+
+\vspace{5mm}
+\textbf{Proof:} If the potential function $\Phi$ satisfies the above properties, then after the moves of the adversary and DC to satisfy a request, $\Delta\Phi \leq k \cdot (\text{cost of adversary}) - (\text{cost of DC})$. 
+
+\vspace{5mm}
+Let $\Phi_0$ and $\Phi_f$ be the initial and final values of the potential function after request sequence $\sigma$. Let $ON(\sigma)$ be the total cost incurred by the online algorithm (Double Coverage), and $ADV(\sigma)$ be the total cost incurred by the adversary. Summing the potential changes over the entire sequence of requests yields:
+\[ \Phi_f - \Phi_0 \leq k \cdot ADV(\sigma) - ON(\sigma) \]
+Since the potential function must remain non-negative by definition ($\Phi_f \geq 0$), we have:
+\[ - \Phi_0 \leq k \cdot ADV(\sigma) - ON(\sigma) \implies ON(\sigma) \leq k \cdot ADV(\sigma) + \Phi_0 \]
+This shows that the cost of the online algorithm is bounded by $k$ times the adversary's cost plus a constant independent of the request sequence, thereby proving it is $k$-competitive.
+
+% \vspace{5mm}
+% We define $\Phi = k\psi + \Theta$. Here $\psi$ is the weight of the minimum weight matching in the bipartite graph where the servers of the adversary and the online algorithm form the two parts. For the line, it is trivial to see that it is simply $\sum_{i=1}^k d(s_i, a_i)$. Further, $\Theta = \sum_{i<j} d(s_i, s_j)$, which is simply the sum of the distances between every pair of on-line servers.
+
+% \begin{enumerate}
+%     \item With this definition, $\Phi$ is clearly non-negative.
+%     \item Assume the adversary moves $a_i$ to position $a_i'$. This does not change $\Theta$. As for the $\psi$ term, the change is simply $d(a_i', s_i) - d(a_i, s_i) \leq d(a_i', a_i)$, which is the cost of the move. Hence $\Delta\Phi \leq k d(a_i', a_i)$.
+    
+%     \item The adversary must always have a server at the position $r$. If the request is to one side of all the servers, then moving a server a distance $x$ to $r$ only decreases $\psi$ by $x$. However, it also increases $\Theta$ by $(k - 1)x$, and hence $\Delta\Phi = -kx + (k - 1)x = -x$.
+
+%     \vspace{3mm}
+%     In the other case, we have two possibilities: either $a_i$ is at $r$ or to its right, or $a_{i+1}$ is at $r$ or to its left. Thus, when we move both servers towards $r$, at least one of the servers reduces its distance from its match, the other potentially may increase its distance from its match by at most the same amount. Hence $\Delta\psi \leq 0$. For the other term, for any $j \neq i, i+1$, the sum of the distances from $s_j$ to $s_i$ and $s_{i+1}$ remains the same, as the movements cancel out. So $\Delta\Theta$ is $-x$, and hence $\Delta\Phi \leq -x$.
+% \end{enumerate}
+
+
+\end{document}
+https://people.inf.ethz.ch/gmohsen/AA19/Notes/S_18_13.pdf
+
+https://randall.math.gatech.edu/Algs07/lec5.pdf

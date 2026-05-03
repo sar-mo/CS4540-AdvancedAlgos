@@ -1,0 +1,199 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\var}[1]{\operatorname{var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 2 Solutions}
+\newcommand{\hmwkDueDate}{Jan.\ 31, 2024}
+\newcommand{\hmwkDueTime}{2:29pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{}
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy}
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course.
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\subsection*{\Exercise}
+    \textit{(KT Chapter 13, Exercise 1)} The 3-coloring problem is a decision problem, but we can word it as an optimization problem as follows.  Suppose we are given a graph $G = (V, E)$ and we want to color each node with one of three colors, even if we aren't necessarily able to give different colors to every pair of adjacent nodes.  Rather, we say that an edge $(u,v)$ is {\it satisfied} if the colors assigned to $u$ and $v$ are different.  
+
+    \vspace{3mm}
+    Consider a 3-coloring that maximizes the number of satisfied edges, and let $c^*$ be the number of edges this satisfies.  Give a polynomial-time algorithm that produces a 3-coloring that satisfies at least $\frac23 c^*$ edges.  If you want, your algorithm can be randomized; in this cases the {\it expected} number of edges it satisfies should be at least~$\frac23 c^*$.
+
+\subsection*{Solution}
+    \textbf{Randomized Solution:} Uniformly assign every vertex a color, independent of all other vertices. Any fixed edge has a $\frac{2}{3}$ chance of being satisfied.
+
+    \vspace{3mm}
+    For each edge $e$, we have the indicator variable $I_e$ that indicates if that edge is properly colored. So, the total number of edges that are properly colored is $X = \sum_{e \in E} I_e$.\\ By linearity of expectation, $\E{X} = \sum_{e \in E} \E{I_e} = \sum_{e \in E} \Pr[I_e = 1] = \sum_{e \in E} \frac{2}{3} = \frac{2}{3} |E|$.
+
+    \vspace{3mm}
+    \textbf{Deterministic Solution:} This is a derandomization of the above randomized algorithm. We greedily color vertices one by one, at each step choosing the color that is least present among its \emph{already colored} neighbors. While running our algorithm, we call an edge \emph{fixed} if both of its endpoints are already colored.
+
+    \vspace{3mm}
+    Consider any step of our algorithm, where we color vertex $v$.
+    At this step, we fix all edges between $v$ and its already
+    colored neighbors. Since we choose the $least$ present color among these neighbors, at most $\frac{1}{3}$ of the edges that we fix are made unsatisfied.
+    Thus at least $\frac23$ of the edges that we fix at any step are satisfied.
+
+    \vspace{3mm}
+    Since every edge gets fixed eventually, it follows that this process will satisfy $\geq \frac23$ of all edges.
+
+    Note that our goal was to have expectation at least
+    $\frac{2}{3} c^{*}$, not $\frac{2}{3} \abs{E}$. Our algorithm satisfies this
+    because $c^* \leq \abs{E}$. This concept is often used in Approximation
+    Algorithms - to show that an algorithm that achieves $\alpha$ of the optimal
+    solution (which is unknown), we can show that it achieves $\alpha$ of
+    something bigger that the optimum (which is known).
+
+\subsection*{\Exercise}
+    (KT Chapter 13, Exercise 2)  Consider a country in which 100,000 people vote in an election.  There are only two candidates on the ballot:  a Democratic candidate (denoted $D$) and a Republican candidate (denoted $R$). As it
+    happens, this country is heavily Democratic, so 80,000 people go to the polls intending to vote for $D$ and 20,000 go intending to vote for $R$.
+    
+    \vspace{2mm}
+    However, the layout of the ballot is a little confusing, so each voter,
+    independently and with probability $\frac1{100}$, votes for the wrong
+    candidate --- that is, the one that he or she did not intend to vote for. 
+    
+    \vspace{2mm}
+    Let $X$ denote the random variable equal to the number of votes received by the Democratic candidate $D$, when the voting is conducted with this process of error.  Determine the expected value of $X$, and give an explanation of your derivation of this value. 
+
+\subsection*{Solution}
+    There are two types of people who will vote Democratic: Democrats who vote correctly, and Republicans who vote incorrectly.
+    \begin{itemize}
+    \item Each Democrat has a $\frac{99}{100}$ chance of voting correctly, so the expected number of votes in this category is $80000 \cdot \frac{99}{100} = 79200$ votes.
+    \item Each Republican has a $\frac{1}{100}$ chance of voting incorrectly, so the expected number of votes in this category is $20000 \cdot \frac{1}{100} = 200$ votes.
+    \end{itemize}
+    Thus, we expect $79400$ total votes for the Democrats.
+    
+\subsection*{\Exercise}
+    \textit{(KT Chapter 13, Exercise 6)} One of the (many) hard problems that arises in genome mapping can be formulated in the following way.  We are given a set of $n$ {\it markers} $\{\mu_1, \mu_2, \dots \mu_n\}$ --- these are positions on a chromosome that we are trying to map --- and our goal is to output a linear ordering of these markers.  The output should be consistent with a set of $k$ {\it constraints}, each specified by a triple $\{\mu_i, \mu_j, \mu_k\}$, requiring that $\mu_j$ lie between $\mu_i$ and $\mu_k$ somewhere in the total ordering that we produce. Note that this constraint does not specify which of $\mu_i$ or $\mu_i$ should come first in the ordering, only that $\mu_j$ should come between them. It also is not saying that they need to be adjacent to each other in this order.
+    
+    \vspace{3mm}
+    Now it is not always possible to satisfy all constraints simultaneously, so we wish to produce an ordering that satisfies as many as possible. Unfortunately, deciding whether there is an ordering that satisfies at least $k'$ of the $k$ constraints is NP-complete.  (You do not have to prove this!)
+    
+    \vspace{3mm}
+    Give a constant $\alpha > 0$ (independent of $n$) and an algorithm with the following property.  If it is possible to satisfy $k^*$ of the constraints, then the algorithm produces an ordering of markers satisfying at least $\alpha k^*$ of the constraints.  Your algorithm may be randomized; in this case it should produce an ordering for which the {\it expected} number of satisfied constraints is at least $\alpha k^*$.
+
+\subsection*{Solution}
+  \begin{itemize}
+    \item Randomized Algorithm: 
+    
+    Pick a permutation of the $n$ markers $\{\mu_1,..., \mu_n\}$ uniformly at random. 
+      
+      Note that for any three elements $\mu_i, \mu_j, \mu_k$, exactly one of
+      them must be in the middle of the other two. By symmetry, it is equally
+      likely to be any of these three elements. Thus, the probability that a
+      particular constraint $\{\mu_i,\mu_j,\mu_k\}$ is satisfied is $\frac{1}{3}$.
+
+      As in problem 1, the expected number of satisfied constraints is
+      $\frac13 k$ by linearity of expectation. Since $k^* \leq k$, our
+      algorithm meets the requirements for $\alpha = \frac13$.
+
+    \item Deterministic Algorithm: Unlike the algorithm in Problem 1, this
+      randomized algorithm may not have a clean derandomization - at least I
+      don't know one.
+  \end{itemize}
+
+\end{document}

@@ -1,0 +1,161 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\Var}[1]{\operatorname{Var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+\newcommand{\oline}[1]{\overleftrightarrow{#1}}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 7}
+\newcommand{\hmwkDueDate}{Mar.\ 27, 2024}
+\newcommand{\hmwkDueTime}{11:59pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{Sarthak Mohanty}
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy} 
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course.
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\subsection*{\Exercise}
+    It is sometimes of interest to compute the Voronoi diagram of a set of sites, but we are only interested in a portion of the final diagram. In this problem, we'll consider how to compute the Voronoi diagram of a set of points in $\mathbb{R}^2$, but restricted to a given line $\ell$. By rotating and translating space, we may assume that $\ell$ is aligned with the x-axis.
+    
+    \vspace{3mm}
+    You are given a sequence of $n$ sites in the plane $P = \{p_1, \ldots, p_n\}$ sorted in increasing order of their x-coordinates (see Fig. \ref*{fig:vrestriction}(a)). Present an algorithm that computes the Voronoi diagram of $P$, but restricted only to the $x$-axis. (We don't care about the portion of the diagram lying above or below the axis.)
+    
+    \vspace{3mm}
+    Observe that the diagram is a sequence of intervals that subdivide the x-axis. The output consists of a sequence of (at most $n-1$) endpoints of the segments $\{x_1, \ldots, x_m\}$, and each edge is labeled with the index of the associated site corresponding to this interval (see Fig. \ref*{fig:vrestriction}(b)). Your algorithm should run in $O(n)$ time. (\textit{Hint:} Start by proving that the left-to-right order of the labels along the x-axis is consistent with the left-to-right order of the sites.)
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.7\linewidth]{images/voronoi_line.png}
+        \caption{Restriction of a Voronoi diagram to a line.}
+        \label{fig:vrestriction}
+    \end{figure}
+
+\subsection*{\Exercise}
+    \textit{(Erickson)} Let $P$ be any set of points in the plane. A triangulation of $P$ is a planar straight-line graph whose outer face is the complement of the convex hull of $P$, and whose bounded faces are all triangles (see Figure \ref*{fig:triangulations}).
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.5\linewidth]{images/triangulation.png}
+        \caption{An example of a triangulation}
+        \label{fig:triangulations}
+    \end{figure}
+    There are several different ways to measure the \textit{quality} of a triangulation. The goal of this question is to prove that the Delaunay triangulation of $P$ is the best possible triangulation of $P$, for a few different definitions of ``best".
+    
+    \vspace{3mm}
+    For example, Lecture 17 of \href{https://www.cs.umd.edu/~mount/754/Lects/754lects.pdf}{David Mount's notes}\footnote{I gave this as part of your lecture notes.} contains a proof that among all triangulations of $P$, the Delaunay triangulation of $P$ has the largest minimum angle.
+    \begin{enumerate}[label=(\alph*)]
+        \item Let $T$ be any triangulation of $P$. Prove that if every interior angle of $T$ is acute, then $T$ is the Delaunay triangulation of $P$.
+        \item For any triangle $\Delta$ with vertices $pqr$, define
+        \[ \text{Vol}(\Delta) = \text{area}(\Delta) \cdot (\|p\|^2 + \|q\|^2 + \|r\|^2) \] where $\|(a, b)\|^2 = a^2 + b^2$ is the squared Euclidean norm. For any triangulation $T$, let $\text{Vol}(T) = \sum_{\Delta \in T} \text{Vol}(\Delta)$. Prove that among all triangulations of $P$, the Delaunay triangulation of $P$ minimizes $\text{Vol}(T)$. (\textit{Hint:} Why is the function called "Vol"?)
+    \end{enumerate}
+
+\subsection*{\Exercise}
+    Consider the following algorithm for \textsc{VertexCover}, run \textsc{DFS}, then output the nodes which are not leaves in the \textsc{DFS} tree. Show that the output is indeed a vertex cover, and that this algorithm gives yet another 2-approximation for the minimum vertex cover.
+  
+\subsection*{\Exercise}
+    We claimed in class that a bad approach to approximating the optimal vertex cover is to use a greedy method that does the following: pick the vertex that covers the most yet uncovered vertices, add it to the cover, and repeat. Give an infinite family of examples (i.e., one for each value of $n$) that shows that this method will not achieve an approximation ratio of 2.
+
+\subsection*{\Exercise}
+    We saw a version of the load-balancing problem (on the exam) where we had 2 machines.  Now we have $m$ machines $M_1 \ldots M_m$ and a set of $n$ jobs. Each job $j$ has a processing time $t_j$. We seek to assign each job to one of the machines so that the loads placed on all machines are as ``balanced" as possible. That is, if $A(i)$ are the set of jobs assigned to machine $M_i$, then the load for machine $M_i$ is $T_i = \sum_{j \in A(i)} t_j$. We want to minimize the \textit{makespan} $T = \max_i T_i$.  This problem is NP-complete, so instead you should design an approximation algorithm for the problem. What approximation ratio does the greedy algorithm (assign each job to the least loaded machine) yield? Prove your answer.
+\end{document}

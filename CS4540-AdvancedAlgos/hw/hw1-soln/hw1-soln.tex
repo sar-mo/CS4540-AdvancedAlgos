@@ -1,0 +1,284 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\var}[1]{\operatorname{var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+% \renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 1 Solutions}
+\newcommand{\hmwkDueDate}{Jan.\ 24, 2024}
+\newcommand{\hmwkDueTime}{11:59pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{}
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy} 
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course.
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+
+\subsection*{\Exercise}
+    \textit{(KT Chapter 1, Exercise 1)} True of false?  (If true, give a brief explanation, if false, give a counterexample): 
+    
+    In every instance of the Stable Matching Problem, there is a stable matching containing a pair $(m, w)$ such that $m$ is ranked first on the preference list of $w$ and $w$ is ranked first on the preference list of $m$.
+
+\subsection*{Solution}
+    This is false. Here is an example with 4 people: $m,m'$ and
+    $w,w'$. Say $m$'s list is $[w,w']$, $m'$'s list is $[w',w]$. However, $w$'s list is $[m',m]$, and $w'$'s list is $[m,m']$.
+
+    \vspace{2mm}
+    There are two possible pairings, and both are stable. Either both men get their first choice and both women get their second choice, or vice-versa. In neither pairing is there a marriage where both partners rank the other first on their preference lists. 
+
+\subsection*{\Exercise}
+    \textit{(KT Chapter 1, Exercise 2)} True or false?
+    
+    Consider an instance of the Stable Matching Problem in which there exists a man $m$ and a woman $w$ such that $m$ is ranked first on the preference list of $w$ and $w$ is ranked first on the preference list of $m$.  Then in every stable matching $S$ for this instance, the pair $(m, w)$ belongs to $S$.
+
+\subsection*{Solution}
+    This is true. Assume otherwise - say there is a stable matching $M$ where $w$ is not matched to $m$, and $m$ is not matched to $w$. Since each is first on the other's list, and they are currently matched to someone who is not first on their list, $(m,w)$ is a rogue pair. Thus $M$ isn't stable - contradiction!.
+
+\subsection*{\Exercise}
+    \textit{(KT Chapter 1, Exercise 3)} There are many other settings in which we can ask questions related to some type of ``stability'' principle.  Here's one, involving competition between two enterprises.  
+
+    \vspace{3mm}
+    Suppose we have two television networks whom we'll call $A$ and $B$.  There are $n$ prime-time
+    programming slots, and each network has $n$ TV shows.  Each network wants to devise a schedule -- an assignment of each show to a distinct slot -- so as to attract as much market share as possible.
+
+    \vspace{3mm}
+    Each show has a fixed rating, which is based on the number of people who watched it last year;  we'll assume that no two shows have exactly the same rating.  A network {\it wins} a given time slot if the show that it schedules for that time slot has a larger rating than the other network schedules for that time slot.  The goal is to win as many time slots as possible.
+
+    \vspace{3mm}
+    We'll say a pair of schedules $(S, T)$ is {\it stable} if neither network can unilaterally change its own schedule and win more time slots.  
+
+    \vspace{3mm}
+    For every set of TV shows and ratings, is there always a stable pair of schedules?  Resolve this question by doing one of two things: 
+
+    \begin{enumerate}
+        \item give an algorithm that, for any TV shows and associated ratings, produces a pair of stable schedules; or
+        \item give an example of TV shows and ratings for which there is no stable pair of schedules.  
+    \end{enumerate}
+
+\subsection*{Solution}
+    Unlike stable matching, there isn't always a stable schedule assignment. Say one network A has shows with ratings $1,3$, and the other network B has shows with ratings $2,4$. If $B$ had it's choice, it would put $2$ at the same slot as $1$, and $4$ at the same slot as $3$, so that it would win both time slots. But this isn't stable, as $A$ would swap it's schedule so that $1$ is against $4$, and $3$ is against $2$, and each network would win one time slot. This isn't stable either, as with this starting configuration, $B$ would swap it's shows to win both time slots.
+
+\subsection*{\Exercise}
+    Give an input to the Stable Marriage Problem with $n$ men and $n$ women that has a unique stable pairing.   Now give an input with $n$ men and $n$ women that has an exponential number (in $n$) of stable pairings.
+
+\subsection*{Solution}
+    \begin{itemize}
+      \item One situation was presented in class: every man and every woman have
+        the same preference list. $[m_1,m_2,\ldots]$ for each woman, and
+        $[w_1,w_2,\ldots]$ for each man. Then, the only stable matching is
+        $(m_1,w_1), (m_2,w_2),\ldots$. \underline{Proof}: Assume there is another matching $M$.
+        Consider the smallest $i$ so that $m_i$ isn't matched with $w_i$.
+        Then each of these is matched with someone lower on their preference list, and thus $(m_i,w_i)$ is
+        a rogue pair - contradiction.
+    
+        Another situation with a unique stable matching is the following:
+        say for all i, each person $m_i$ has
+        $w_i$ as their ideal mate, and each $w_i$ has $m_i$ as their ideal mate.
+        Then the matching $(m_1,w_1), (m_2,w_2),\ldots$ is stable, since every
+        person is paired with their ideal mate. Considering problem $2$, this is
+        the only possible stable matching. Note that it doesn't matter what
+        all the other preferences are.
+    
+      \item There are many possible ways to get an exponential number of stable
+        matchings, but here is one.
+    
+        Say $n$ is even, divide all the men and all the women into groups of 2.
+        Label the men $m_1,m_1', m_2,m_2',\ldots m_{n/2},m_{n/2}'$, and do the
+        same for the women.
+    
+        For each pair, we use a setup like the written solution from problem 1:
+        Let each $m_i$'s list be $[w_i,w_i',\ldots]$, $m_i'$'s list be
+        $[w_i',w_i,\ldots]$, and let each
+        $w_i$'s list be $[m_i',m_i,\ldots]$, and $w_i'$'s list be
+        $[m_i,m_i',\ldots]$. All other preferences after these first two won't
+        matter.
+    
+        For each $i$, say that we either have pairing $[(m_i,w_i), (m_i',w_i')]$,
+        or pairing $[(m_i, w_i'),(m_i',w_i)]$. 
+        We can see that this is stable because 
+        \begin{itemize}
+          \item Everyone is paired with either their first or second choice, so
+            there are no rogue pairs between some $m_i$ and some $w_j$, $j\neq i$.
+          \item No one can move unilaterally within their pair. As in the solution
+            to problem 1, this is stable.
+        \end{itemize}
+    
+        We can select either pair for each $i$ without affecting any of the
+        others. Thus there are at least $2^{\frac{n}{2}}$ stable matchings.
+        (Without much more effort, you can show that these are the only stable
+        matchings - but this is unnecessary).
+    \end{itemize}
+
+\subsection*{\Exercise}
+    Let $[m]$ denote the set $\{0,1,\dots, m-1\}$.  For each of the following families of hash functions, say whether it is 2-universal or not, and specify how many random bits are needed to sample a hash function from the family, and then justify your answer.
+    \begin{enumerate}
+        \item $H_a = \{h(x_1,x_2)=a_1 x_1 + a_2 x_2 \ ({\rm mod} \ m) \ | \ a_1, a_2 \in [m]\}$, where $m$ is some fixed prime.  (Note that for each $h\in H_a$ we have $h: [m]^2 \rightarrow [m]$, i.e., it maps a pair of integers in $[m]$ to a single integer in $[m]$.)
+        \item $H_b = \{h(x_1,x_2) = a_1x_1 + a_2 x_2 \ ({\rm mod} \  m) \} : a_1, a_2 \in [m]\}$, where $m=2^k$ is some fixed power of two.
+        \item The set of all functions $f: [m]\rightarrow [m-1]$.
+    \end{enumerate}
+
+\subsection*{Solution}
+\begin{enumerate}[label=(\alph*)]
+  \item This is a 2-universal family.
+    We use two important facts from number theory that we also used in class.
+    \begin{itemize}
+      \item Fact 1: Let $a$ be uniformly chosen from $[m]$. Then for ANY fixed
+        $x$, $a + x \pmod m$ is uniformly distributed in $[m]$.
+      \item Fact 2: Let $a$ be uniformly chosen from $[m]$, where $m$ is prime.
+        Then for any fixed $x \neq 0$, $a\cdot x \pmod m$ is
+        uniformly distributed in $[m]$.
+    \end{itemize}
+
+    This hash family is 2-universal if $$\forall (x_1,x_2) \neq (y_1,y_2), 
+    \left[\Pr[f(x_1,x_2) = f(y_1,y_2)] \leq 1/m\right].$$
+    Notice that the $\forall$ is outside of the $\Pr$, so we
+    \emph{first} fix $(x_1,x_2)\neq (y_1,y_2)$, \emph{then} we consider the
+    Probability over all $a_1,a_2$.
+
+    The event $f(x_1,x_2) = f(y_1,y_2)$ means that
+    $a_1x_1 + a_2x_2 = a_1y_1 + a_2y_2 \pmod m$. With some algebra, it means
+    $a_1(x_1 - y_1) + a_2(x_2 - y_2) = 0 \pmod m$.
+    Since $(x_1,x_2) \neq (y_1,y_2)$, we know at least one of $x_1\neq y_1$ or
+    $x_2 \neq y_2$. Without loss of generality, assume that $x_1 \neq y_1$.
+    Then, $(x_1 - y_1)$ is non-zero. Thus, $a_1(x_1 - y_1) \pmod m$ is
+    distributed uniformly in $[m]$ by Fact (2).
+    The other term $a_2(x_2 - y_2) \pmod m$ is something independent of
+    $a_1$. No matter what it $a_2(x_2 - y_2)$ happens to be,
+    $a_1(x_1 - y_1) + a_2(x_2 - y_2) \pmod m$ is
+    uniformly distributed in $[m]$ by Fact (1). Thus the the Probability that
+    this is $0$ is $1/m$.
+
+    A hash function in this family is determined by $a_1,a_2$, each of which
+    are $\in [p]$. Thus we need $2\lceil\log(p)\rceil$ bits.
+
+  \item This is NOT a 2-universal family.
+    Now that $m = 2^k$ is not Prime, we can no longer use Fact (2) in our Proof
+    above.
+    Consider $(x_1,x_2) = (0,0)$ and $(y_1,y_2) = (2^{k-1},0)$. Now, the event
+    $f(x_1,x_2) = f(y_1,y_2)$ can be boiled down with some algebra to
+    $a_12^{k-1} = 0 (\mod 2^k)$. If $a_1$ is a multiple of $2$, then $a_12^{k-1}$
+    is a multiple of $2^k$. Exactly half of the elements of $[2^k]$ are
+    multiples of 2.
+    Thus for any $k > 1$, $\Pr[f(0,0) = f(2^{k-1},0)]=\frac{1}{2} > \frac{1}{2^k}$.
+
+  \item This is a 2-universal family.
+    In this family, each input $i \in [m]$ has $m-1$ possible choices to map
+    to.  We can sample from this set in the following natural way - 
+    for each element $i \in [m]$, pick an element in $[m-1]$ uniformly at
+    random, independently of our choices for all other $j \in [m]$.
+
+    Therefore, for any fixed $x,y \in [m]$, $f(x)$ and $f(y)$ are
+    independent, and $\Pr[f(x) = f(y)] = \frac{1}{m-1}$. Since our target set
+    has size $m-1$, this is a 2-universal family.
+
+    We need to choose one element in $[m-1]$ for each element in $[m]$. Thus
+    we need $m\lceil\log(m-1)\rceil$ bits.
+
+\end{enumerate}
+
+
+
+\end{document}

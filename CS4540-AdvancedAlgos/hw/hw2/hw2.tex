@@ -1,0 +1,153 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\var}[1]{\operatorname{var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 2}
+\newcommand{\hmwkDueDate}{Jan.\ 31, 2024}
+\newcommand{\hmwkDueTime}{11:59pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{}
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy}
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course.
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\subsection*{\Exercise}
+    (KT Chapter 13, Exercise 1)  The 3-coloring problem is a decision problem, but we can word it as an optimization problem as follows.  Suppose we are given a graph $G = (V, E)$ and we want to color each node with one of three colors, even if we aren't necessarily able to give different colors to every pair of adjacent nodes.  Rather, we say that an edge $(u,v)$ is {\it satisfied} if the colors assigned to $u$ and $v$ are different.  
+
+    \vspace{2mm}
+    Consider a 3-coloring that maximizes the number of satisfied edges, and let $c^*$ be the number of edges this satisfies.  Give a polynomial-time algorithm that produces a 3-coloring that satisfies at least $\frac23 c^*$ edges.  If you want, your algorithm can be randomized; in this cases the {\it expected} number of edges it satisfies should be at least~$\frac23 c^*$.
+
+\subsection*{\Exercise}
+    (KT Chapter 13, Exercise 2)  Consider a country in which 100,000 people vote in an election.  There are only two candidates on the ballot:  a Democratic candidate (denoted $D$) and a Republican candidate (denoted $R$). As it
+    happens, this country is heavily Democratic, so 80,000 people go to the polls intending to vote for $D$ and 20,000 go intending to vote for $R$.
+    
+    \vspace{2mm}
+    However, the layout of the ballot is a little confusing, so each voter,
+    independently and with probability $\frac1{100}$, votes for the wrong
+    candidate --- that is, the one that he or she did not intend to vote for. 
+    
+    \vspace{2mm}
+    Let $X$ denote the random variable equal to the number of votes received by the Democratic candidate $D$, when the voting is conducted with this process of error.  Determine the expected value of $X$, and give an explanation of your derivation of this value. 
+
+\subsection*{\Exercise}
+  (KT Chapter 13, Exercise 12)  Consider the following analogue of Karger's
+  algorithm for finding minimum $s-t$ cuts.  We will contract edges
+  iteratively using the following randomized procedure.  In a given iteration, let $s$ and $t$ denote the possibly contracted nodes that contain the original nodes $s$ and $t$, respectively.  To make sure that $s$ and $t$ do not get contracted, at each iteration we delete any edges connecting $s$ and $t$ and select a random edge to contract among the remaining edges.  Give an example to show that the probability that this method finds a minimum $s-t$ cut can be exponentially small.
+
+
+\subsection*{\Exercise}
+  (KT Chapter 13, Exercise 6)  One of the (many) hard problems that arises in genome mapping can be formulated in the following way.  We are given a set of $n$ {\it markers} $\{\mu_1, \mu_2, \dots \mu_n\}$ --- these are positions on a chromosome that we are trying to map --- and our goal is to output a linear ordering of these markers.  The output should be consistent with a set of $k$ {\it constraints}, each specified by a triple $\{\mu_i, \mu_j, \mu_k\}$, requiring that $\mu_j$ lie between $\mu_i$ and $\mu_k$ somewhere
+  in the total ordering that we produce. Note that this constraint does not specify which of $\mu_i$ or $\mu_i$ should come first in the ordering, only that $\mu_j$ should come between them. It also is not saying that they need to be adjacent to each other in this order.
+
+  \vspace{3mm}
+  Now it is not always possible to satisfy all constraints simultaneously, so we wish to produce an ordering that satisfies as many as possible. Unfortunately, deciding whether there is an ordering that satisfies at least $k'$ of the $k$ constraints is NP-complete.  (You do not have to prove this!)
+
+    \vspace{3mm}
+  Give a constant $\alpha > 0$ (independent of $n$) and an algorithm with the following property.  If it is possible to satisfy $k^*$ of the constraints, then the algorithm produces an ordering of markers satisfying at least $\alpha k^*$ of the constraints.  Your algorithm may be randomized; in this case it should produce an ordering for which the {\it expected} number of satisfied constraints is at least $\alpha k^*$. 
+
+\end{document}

@@ -1,0 +1,384 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+\usepackage{bm}
+\usepackage{multicol}
+
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\Var}[1]{\operatorname{Var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+\newcommand{\oline}[1]{\overleftrightarrow{#1}}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 7 Solutions}
+\newcommand{\hmwkDueDate}{Mar.\ 27, 2024}
+\newcommand{\hmwkDueTime}{11:59pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{Sarthak Mohanty}
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy} 
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course.
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\subsection*{\Exercise }
+% \footnote{From \href{https://www.cs.umd.edu/class/fall2023/cmsc754/Handouts/hw2.pdf}{here}}
+    It is sometimes of interest to compute the Voronoi diagram of a set of sites, but we are only interested in a portion of the final diagram. In this problem, we'll consider how to compute the Voronoi diagram of a set of points in $\mathbb{R}^2$, but restricted to a given line $\ell$. By rotating and translating space, we may assume that $\ell$ is aligned with the x-axis.
+    
+    \vspace{3mm}
+    You are given a sequence of $n$ sites in the plane $P = \{p_1, \ldots, p_n\}$ sorted in increasing order of their x-coordinates (see Fig. \ref*{fig:vrestriction}(a)). Present an algorithm that computes the Voronoi diagram of $P$, but restricted only to the $x$-axis. (We don't care about the portion of the diagram lying above or below the axis.)
+    
+    \vspace{3mm}
+    Observe that the diagram is a sequence of intervals that subdivide the x-axis. The output consists of a sequence of (at most $n-1$) endpoints of the segments $\{x_1, \ldots, x_m\}$, and each edge is labeled with the index of the associated site corresponding to this interval (see Fig. \ref*{fig:vrestriction}(b)). Your algorithm should run in $O(n)$ time. (\textit{Hint:} Start by proving that the left-to-right order of the labels along the $x$-axis is consistent with the left-to-right order of the sites.)
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.7\linewidth]{images/voronoi_line.png}
+        \caption{Restriction of a Voronoi diagram to a line.}
+        \label{fig:vrestriction}
+    \end{figure}
+
+\subsection*{Solution}
+    First, observe that the left-to-right order of the labels along the $x$-axis increases monotonically. Indeed, for any two sites $p_i = (x_i,y_i)$ and $p_j = (x_j,y_j)$ with $x_i < x_j$, the point on the $x$-axis where they are equally close is given by
+    $$\sqrt{(x - x_i)^2 + y_i^2} = \sqrt{(x - x_j)^2 + y_j^2}
+    \quad\Longrightarrow\quad
+    x = \frac{x_i^2 - x_j^2 + y_j^2 - y_i^2}{2(x_j - x_i)}.$$
+    Thus, once $p_j$ becomes closer than $p_i$ on the $x$-axis, $p_i$ can never become closer than $p_j$ again. Hence the labels along the $x$-axis are consistent with the left-to-right order of the sites.
+
+    \vspace{3mm}
+    Now the key property that we will use is that the distance from a point $(x,0)$ on the $x$-axis to a site $p_i = (x_i,y_i)$ is
+    $$d_i(x)^2 = (x - x_i)^2 + y_i^2.$$
+    So computing the restricted Voronoi diagram is equivalent to computing the lower envelope of these functions. Since the labels change monotonically, we can compute this lower envelope using a stack.
+
+    \vspace{3mm}
+    Initialize a stack with $p_1$, and store that $p_1$ is closest starting from $-\infty$. Now process the points $p_2,\ldots,p_n$ from left to right. When inserting a new point $p_i$, compare it with the current top point $p_j$ on the stack, and compute the point $x_{ij}$ where they are equally close:
+    $$x_{ij} = \frac{x_j^2 - x_i^2 + y_i^2 - y_j^2}{2(x_i - x_j)}.$$
+    If $x_{ij}$ lies to the left of the starting point of $p_j$'s interval, then $p_j$ never appears on the lower envelope, so pop $p_j$ from the stack and repeat. Otherwise, push $p_i$ onto the stack and record that its interval starts at $x_{ij}$.
+
+    \vspace{3mm}
+    At the end, the stack contains exactly the sites whose Voronoi cells intersect the $x$-axis, in left-to-right order, together with the endpoints where the label changes. Each point is pushed once and popped at most once, so the total running time is $O(n)$.
+
+\subsection*{\Exercise}
+   \textit{(Erickson)} Let $P$ be any set of points in the plane. A triangulation of $P$ is a planar straight-line graph whose outer face is the complement of the convex hull of $P$, and whose bounded faces are all triangles.
+
+    \begin{center}
+        \includegraphics[width=0.6\linewidth]{images/triangulation.png}
+    \end{center}
+    There are several different ways to measure the \textit{quality} of a triangulation. The goal of this question is to prove that the Delaunay triangulation of $P$ is the best possible triangulation of $P$, for a few different definitions of ``best".
+    
+    \vspace{3mm}
+    For example, Lecture 17 of \href{https://www.cs.umd.edu/~mount/754/Lects/754lects.pdf}{David Mount's notes}\footnote{I gave this as part of your lecture notes.} contains a proof that among all triangulations of $P$, the Delaunay triangulation of $P$ has the largest minimum angle.
+
+    \begin{enumerate}[label=(\alph*)]
+        \item Let $T$ be any triangulation of $P$. Prove that if every interior angle of $T$ is acute, then $T$ is the Delaunay triangulation of $P$.
+        \item For any triangle $\Delta$ with vertices $pqr$, define
+        \[ \text{Vol}(\Delta) = \text{area}(\Delta) \cdot (\|p\|^2 + \|q\|^2 + \|r\|^2) \]
+        where $\|(a, b)\|^2 = a^2 + b^2$ is the squared Euclidean norm. For any triangulation $T$, let $\text{Vol}(T) = \sum_{\Delta \in T} \text{Vol}(\Delta)$. Prove that among all triangulations of $P$, the Delaunay triangulation of $P$ minimizes $\text{Vol}(T)$. \textit{[Hint: Why is the function called ``Vol"?]}
+    \end{enumerate}
+
+\subsection*{Solution}
+    \begin{enumerate}
+        \item \textbf{Solution 1:} Suppose every interior angle of \( T \) is acute, but $T$ is not a Delaunay triangulation. Because \( T \) is not Delaunay, there must be four points \( p, q, r, s \in P \), such that \( pqr \) and \( prs \) are triangles in \( T \) whose common edge \( pr \) is not locally Delaunay\footnote{To see this, since \(T\) is not Delaunay, there is some triangle \(pqr\) whose circumcircle contains another point \(s \in P\). Among all such choices, choose \(s\) so that the segment from \(s\) to \(pqr\) crosses the fewest edges of \(T\). Let \(pr\) be the first crossed edge, and let \(prs\) be the triangle on the other side of \(pr\). Then \(s\) lies inside the circumcircle of \(pqr\), so \(pr\) is not locally Delaunay.}. Thus $q$ and $s$ lie on opposite sides of $pr$, and $s$ lies inside the circumcircle of $pqr$.
+
+        \vspace{3mm}
+        Since $s$ lies inside the circumcircle of $pqr$, the angle $\angle psr$ is strictly larger than the angle it would make on the boundary of the circle. By the Inscribed Angle Theorem, this boundary angle is supplementary to $\angle pqr$. Therefore,
+        $$\angle psr + \angle pqr > \pi.$$
+        Hence at least one of $\angle psr$ and $\angle pqr$ is obtuse, contradicting the assumption that every interior angle of $T$ is acute. Thus $T$ is a Delaunay triangulation.
+
+    \begin{tcolorbox}[colback=ForestGreen!2, colframe=ForestGreen!20]
+        \textbf{Solution 2 (Erickson):} The \textit{diametral circle} of a line segment is the circle centered at the midpoint of the segment that passes through both endpoints of the segment---more concisely, the smallest circle containing the segment.
+    
+            \vspace{3mm}
+            We need the following observation, which goes back to Euclid. For any three points \( p, q, r \) on a circle with center \( c \), the angle \( \angle pcr \) is exactly twice the angle \( \angle pqr \). See the figure on the left below.
+            \begin{center}
+                \includegraphics[width=0.5\linewidth]{images/inscribed_angle_theorem.png}
+            \end{center}
+            This observation implies two useful facts about acute triangles:
+            \begin{itemize}
+                \item For any acute triangle \( \Delta \), each vertex of \( \Delta \) is outside the diametral circle of the opposite edge of \( \Delta \).
+                \item The circumcircle of any acute triangle \( \Delta \) lies inside the union of \( \Delta \) and the interiors of the diametral circles of the edges of \( \Delta \). (See the right figure above.)
+            \end{itemize}
+            These two facts imply that if \( T \) is an acute triangulation of \( P \), the diametral circle of every edge of \( T \) is empty, and thus the circumcircle of every triangle in \( T \) is empty.
+        \end{tcolorbox}
+        \item \textbf{Solution 1:} Suppose \( T \) is not a Delaunay triangulation. Then there must be four points \( a, b, c, d \in P \), such that \( abc \) and \( acd \) are triangles in \( T \) whose common edge \( ac \) is not locally Delaunay. Suppose $a,b,c$ are oriented counterclockwise. Since $ac$ is not locally Delaunay, \( d \) lies inside the circumcircle of \( \triangle abc \). Let \( T' \) be the triangulation obtained by flipping $ac$ to $bd$.
+
+    \vspace{3mm}
+    The change in \( \text{Vol}(T) \) after we perform the edge flip is 
+    $$\begin{aligned}
+        \text{Vol}(T) - \text{Vol}(T') &= (\|a\|^2 + \|b\|^2 + \|c\|^2)\text{area}(abc) + (\|a\|^2 + \|c\|^2 + \|d\|^2)\text{area}(acd) \\
+        &\hspace{7mm} - (\|a\|^2 + \|b\|^2 + \|d\|^2)\text{area}(abd) - (\|b\|^2 + \|c\|^2 + \|d\|^2)\text{area}(bcd) \\
+        &= -\|a\|^2\text{area}(bcd) + \|b\|^2\text{area}(acd) - \|c\|^2\text{area}(abd) + \|d\|^2\text{area}(abc).
+    \end{aligned}$$
+    Now consider the incircle test associated with these four points.
+    $$\text{inCircle}(a,b,c,d) = \det 
+    \begin{pmatrix}
+        a_x & a_y & a_x^2 + a_y^2 & 1 \\
+        b_x & b_y & b_x^2 + b_y^2 & 1 \\
+        c_x & c_y & c_x^2 + c_y^2 & 1 \\
+        d_x & d_y & d_x^2 + d_y^2 & 1
+    \end{pmatrix}.$$
+    Observe that a cofactor expansion along the 3rd column yields
+    $$\text{inCircle}(a,b,c,d) = 2(\text{Vol}(T) - \text{Vol}(T')).$$
+    Furthermore, \( d \) lies inside the circumcircle of \( \triangle abc \), so $\text{inCircle}(a,b,c,d) > 0$. Thus \( \text{Vol}(T) > \text{Vol}(T') \), so performing the edge flip decreases \( \text{Vol}(T) \). Therefore, the Delaunay triangulation minimizes \( \text{Vol}(T) \).
+    
+    \begin{tcolorbox}[colback=ForestGreen!2, colframe=ForestGreen!20]
+        \textbf{Solution 2 (Erickson):} For any point \( p \) in the plane, let \( \hat{p} = (a, b, a^2 + b^2) \) denote its lifting to the unit paraboloid; note that \( \|p\|^2 = a^2 + b^2 \) is the \( z \)-coordinate of \( \hat{p} \). For any triangle \( \Delta \) with vertices \( pqr \), let \( \hat{\Delta} \) denote the planar triangle with vertices \( \hat{p}, \hat{q}, \hat{r} \). Finally, for any triangulation \( T = \{\Delta_1, \Delta_2, \ldots\} \) of \( P \), let \( \hat{T} \) denote the lifted triangulation \( T = \{\hat{\Delta}_1, \hat{\Delta}_2, \ldots\} \).
+
+        \vspace{3mm}
+        Now consider the vertical triangular prism with bottom facet \( \Delta \) and top facet \( \hat{\Delta} \); the volume of this prism is equal to
+        \[ \text{area}(\Delta) \cdot \left( \frac{\hat{p}_{z} + \hat{q}_{z} + \hat{r}_{z} }{3} \right) = \frac{\text{Vol}(\Delta)}{3} \]
+
+        \vspace{3mm}
+        Thus, \( \text{Vol}(T) \) is exactly three times the volume between the lifted triangulation \( \hat{T} \) and the plane \( z = 0 \).
+
+        \vspace{3mm}
+        Now let \( T \) be a non-Delaunay triangulation of \( P \); we need to argue that there is another triangulation \( T' \) such that \( \text{Vol}(T') < \text{Vol}(T) \). Because \( T \) is not Delaunay, there must be four points \( p, q, r, s \in P \), such that \( pqr \) and \( prs \) are triangles in \( T \) whose common edge \( pr \) is not locally Delaunay (basically we can flip it and reduce the angle). Let \( T' \) be the triangulation obtained by flipping \( pr \), replacing it with \( qs \). Because \( pr \) is not locally Delaunay, this flip lowers the lifted triangulation.
+        % You can prove this analytically, but it suffices to just see this connection geometrically by realizing that the three points on the circumcircle are coplanar and that any point inside the circle lies below this halfspace.)  
+
+        \vspace{2mm}
+        Specifically, we have
+        
+        \begin{minipage}[t]{0.7\linewidth}
+            $$ \frac{\text{Vol}(T')}{3} = \frac{\text{Vol}(T)}{3} - \text{volume}(\hat{p}\hat{q}\hat{r}\hat{s}) < \frac{\text{Vol}(T)}{3}.$$
+        \end{minipage}%
+        \begin{minipage}[h]{0.2\linewidth}
+            \begin{center}
+                \includegraphics[width=\linewidth]{images/paraboloid_lifting.png}
+            \end{center}
+        \end{minipage}
+    \end{tcolorbox}
+
+% \begin{figure}[htbp]
+%     \centering
+%     \includegraphics[width=0.5\linewidth]{image16.png}
+%     \caption{}
+%     \label{fig:enter-label}
+% \end{figure}
+
+
+    
+% Without loss of generality, consider the figure below:
+
+% \begin{center}
+% \begin{tikzpicture}
+% \draw (0,0) circle [radius=2cm];
+% \node[draw, circle, inner sep=2pt,fill=black, label=right:\(P_1\)] at (1.2,1.6) {};
+% \node[draw, circle, inner sep=2pt,fill=black, label=left:\(P_2\)] at (-1.2,1.6) {};
+% \node[draw, circle, inner sep=2pt,fill=black, label=below:\(P_3\)] at (0,-2) {};
+% \node[draw, circle, inner sep=2pt,fill=black, label=above:\(P_4\)] at (0,2) {};
+% \draw (0,2) -- node[above]{} (-1.2,1.6) -- node[above]{} (0,-2) -- node[above]{} (1.2,1.6) -- node[above]{} (0,2);
+% \draw (-1.2,1.6) -- node[above]{} (1.2,1.6);
+% \end{tikzpicture}
+% \end{center}
+    \end{enumerate}
+
+\subsection*{\Exercise}
+    Consider the following algorithm for Vertex Cover: Run DFS. Output the nodes which are not leaves in the DFS tree. Show that the output is indeed a vertex cover, and that this algorithm gives yet another 2-approximation for the minimum vertex cover.
+
+\subsection*{Solution}
+    We assume the graph is connected (otherwise, repeat the argument for each connected component). Let $T$ be the DFS tree, and $L$ the set of leaves.
+
+    \vspace{3mm}
+    \textbf{Correctness:} First, we show $V \setminus L$ is a vertex cover. Recall $V \setminus L$ is a vertex cover if there are no edges between elements of $L$ in $G$. Assume there is an edge $(l_1, l_2) \in E$, where $l_1, l_2 \in L$. Then when running the DFS algorithm, when reaching one of those leaves, we could have kept going and traversed that edge - thus one of those leaves is not actually a  leaf. This is a contradiction - thus no such edge exists, and $V \setminus L$ is a vertex cover.
+    
+    \vspace{3mm}
+    \textbf{2-approx:} Any vertex cover of $G$ must also be a vertex cover of $T \subseteq G$, so $OPT_{T} \leq OPT_{G}$. We consider the problem of finding an optimal vertex cover of $T$. Note that WLOG, we may assume that no leaves are in the optimal vertex cover: for any leaf that we cover, we may as well cover the parent instead. Also, at least one of the leaf and the parent must be covered. Thus OPT on a tree covers all parents of leaves. We can then remove all these nodes, and cover the remaining graph iteratively. Let $L = P_0$ be the leaves of $T$, $P_1$ be the parents of $P_0$, $P_2$ be the parents of $P_1$ that are not themselves in $P_1$, ..., $P_i$ are the parents of $P_{i-1}$ that are not in any previous $P_j$, etc. Let $M$ be the maximum such index such that $P_M$ is covered by OPT. Either $P_M$ or $P_{M+1}$ contains the last few vertices of the tree. Set $P_{M+1} = 0$ if the above enumeration ends at $P_M$. We observe that $P_0 \geq P_1 \geq P_2 \geq \ldots \geq P_M \geq P_{M+1}$. We see that $OPT_{T}$ costs $P_1 + P_3 + P_5 + \ldots + P_M$, while our algorithm costs $$P_1 + P_2 + P_3+ \ldots + P_M + P_{M+1} \leq P_1 + P_1 + P_3 + P_3 + \ldots + P_M + P_M= 2 OPT_{T} \leq 2 OPT_{G}.$$
+  
+\subsection*{\Exercise}
+    We claimed in class that a bad approach to approximating the optimal vertex cover is to use a greedy method that does the following: pick the vertex that covers the most yet uncovered vertices, add it to the cover, and repeat. Give an infinite family of examples (i.e., one for each value of n) that shows that this method will not achieve an approximation ratio of 2.
+
+
+\subsection*{Solution}
+    There are many possible solutions - in fact, we show that you can't get any constant ratio with the greedy algorithm. For the homework, a counter example for which the greedy algorithm has approximation ratio greater than 2 is sufficient. Let $l$ be a power of two, $l= 2^k$, for convenience.
+
+    \vspace{3mm}
+    Let $G$ be a bipartite graph with $l$ vertices on one side, call those vertices $A$. We construct the other side $B$ iteratively. First add $l/2$ vertices, $B_1$, and connect each of these to exactly $2$ elements on side $A$, such that every vertex in $A$ has one neighbor in $B_1$. For example, connect $b_1$ to $a_1$ and $a_2$, then connect $b_2$ to $a_3$ and $a_4$, etc.
+
+    \vspace{3mm}
+    Next, add another $l/2$ vertices, $B_2$, and connect each to exactly $2^2 = 4$ vertices on the opposite side, so that each vertex in $A$ will have exactly two neighbors in $B_2$. Continue this process until you have set $B_k$ of size $l/2$ which connects to all $2^k = l$ vertices on the other side, such that each vertex in $A$ connects to all $l/2$ of the vertices in $B_k$. %At the end of this, we have $l = 2^k$ vertices on side $A$, and $kl/2$ %vertices on side $B$, for a total of $l +  l \log(l)/2$ vertices.
+
+    \vspace{3mm}
+    The degree of a vertex in $A$ is $1$ + $2$ + $4$ + \ldots + $l/2$ = $l-1$. The degree of every node in the vertex set $B_k$ is $l$, so the greedy algorithm would first select all the nodes of $B_k$. Now, the number of remaining outgoing uncovered edges for each vertex on side $A$ is $1 + 2 + \ldots + l/4 = l/2 -1 $, and the greedy algorithm would then select all the nodes in $B_{k-1}$ which have degree $2^{k-1} = l/2$. Repeating this argument, the greedy algorithm would select all of side $B$, which has $kl/2$ vertices.
+
+    \vspace{3mm}
+    But a better vertex cover would be to choose all of $A$, which has only $l$ vertices. Thus, we get an approximation factor of $k/2$ - for any $k$. The total number of vertices $\abs{V} = l + lk/2 = l + l/2\log l$, so this approximation ratio in terms of $\abs{V}$ is $O(\log \abs{V}) = O(\log l)$.
+
+    \vspace{3mm}
+    To get an example for any value of $n = \abs{V}$, even those that can't be written in the form $l + l\log l /2$ for some $l$, simply find the largest $l$ such that $l + l\log l/2 < n$, and then add isolated vertices until there are $n$ total vertices. This doesn't change either the optimal vertex cover or the greedy vertex cover, since no edges have been added, so we get the same result.
+
+\subsection*{\Exercise}
+    We saw a version of the load-balancing problem (on the exam) where we had 2 machines.  Now we have m machines $M_1 \ldots M_m$ and a set of n jobs. Each job $j$ has a processing time $t_j$. We seek to assign each job to one of the machines so that the loads placed on all machines are as "balanced" as possible. That is, if $A(i)$ are the set of jobs assigned to machine $M_i$ , then the load for machine $M_i$ is total time required.  \[ T_i = \sum_{j \in A(i)} t_j\] We want to minimize the $makespan$ $T = \max_i T_i$.  This problem is NP-complete, so instead you should design an approximation algorithm for the problem. What approximation ratio does the greedy algorithm (assign each job to the least loaded machine) yield? Prove your answer.
+
+
+\subsection*{Solution}
+Like in the exam, we have two useful bounds for OPT. One is $OPT \geq \frac1m \sum_{i = 1}^n t_i=\frac1m \sum_{j=1}^m T_j$. This bound says that it is impossible for every machine to have cost lower than this average (otherwise, the total costs of all the machines wouldn't add up to the total weight of all the costs).
+
+\vspace{3mm}
+Another bound is $OPT \geq \max_i t_i$. This says that the optimal solution has cost at least the largest weighted task (Because this task has to go to \emph{some} machine).
+
+\vspace{3mm}
+Heuristically, if we have a large number of tasks where every individual task has small weight, the first bound is useful but the second is not. If we have one task of weight much larger than the others, then the second bound is probably more relevant.
+
+\vspace{3mm}
+We start by looking at the results of $ALG$, the greedy algorithm. Say it outputs an assignment where each machine $i$ has cost $T_i$, and WLOG put them in order so that $T_1 \leq T_2 \leq \ldots \leq T_m$. Then the cost of $ALG = T_m$. Our first bound says $OPT \geq \frac{1}{m} \sum_{i=1}^m T_i$. Because this is the greedy algorithm, the last element put on the heaviest machine, $T_m$, must have been placed when machine $m$ had the lowest cost, in particular it must have been lower than $T_1$. Thus, this task had cost at least $T_m - T_1$, and we have that $OPT \geq T_m - T_1$. This is just in terms of $T_1$ and $T_m$, so lets use a more convenient first bound for $OPT$, $$OPT \geq \frac{1}{m} \sum_{i=1}^m T_i \geq \frac{1}{m}((\sum_{i=1}^{m-1} T_1) + T_m) = \frac{m-1}{m}T_1 + \frac{1}{m}T_m.$$
+We have two cases depending on which of these bounds is larger (and thus the more useful bound).
+
+\vspace{3mm}
+Say the last task on $M_m$ is the better bound. Then $T_m - T_1 \geq \frac{m-1}{m}T_1 + \frac{1}{m}T_m$. This boils down to $T_1 \leq \frac{m-1}{2m-1}T_m$. We see that
+  $$\begin{aligned}
+    \frac{ALG}{OPT} &\leq \frac{T_m}{T_m - T_1} \\
+    &\leq \frac{T_m}{T_m - \frac{m-1}{2m-1}T_m} \\
+    &= \frac{1}{\frac{m}{2m-1}} = \frac{2m-1}{m}
+  \end{aligned}$$
+Say instead that the first bound is the better bound: $\frac{m-1}{m}T_1 + \frac{1}{m}T_m \geq T_m - T_1$. Then $T_1 \geq \frac{m-1}{2m-1}T_m$. Again, we use the larger one as our bound on OPT.
+ $$ \begin{aligned}
+    \frac{ALG}{OPT} &\leq \frac{T_m}{\frac{m-1}{m}T_1 - \frac{1}{m}T_m}\\
+    &\leq \frac{T_m}{\frac{m-1}{2m-1}\frac{m-1}{m}T_m - \frac{1}{m}T_m}\\
+    &= \frac{m(2m-1)}{(m-1)^2 - (2m-1)}\\
+    &= \frac{m(2m-1)}{(m)^2} = \frac{2m-1}{m}
+  \end{aligned}$$
+  Thus in each case, we get a bound of $\frac{2m-1}{m} = 2 - \frac{1}{m}$.
+
+
+% \subsection*{\Exercise}
+%     Find a polynomial-time $4/3$-approximation to instances of metric-TSP where
+%   distances are either $1$ or $2$.
+
+%     \vspace{3mm}
+%     \textit{Hint: } The 2-matching problem (i.e. find a minimum weight subset of edges $M$
+%     such that each node is adjacent to exactly $2$ edges in M) can be solved in
+%     polynomial time.
+
+
+% \subsection*{Solution}
+
+
+% A 2-matching (or more commonly a 2-factor) is a collection of disjoint cycles that spans the graph. The Min-cost 2-matching returns the lowest cost among all 2-matchings. A TSP tour (a 2-matching that contains exactly one cycle), is a type of 2-matching, so $cost(2-matching)\leq cost(OPT)$.
+
+%     \vspace{3mm}
+% Say we run our $2-matching$ algorithm, and we have $k$ cycles returned. We transform this into a TSP tour as follows: from each cycle $i$, pick an edge $e_i = (v_{i,1}, v_{i,2})$. We delete these $k$ edges to obtain a collection of paths. We now add edges between these paths to get a final cycle, that is, add edges $(v_{1,2}, v_{2,1}), (v_{2,2}, v_{3,1}), (v_{3,2}, v_{4,1}), \ldots (v_{k,2}, v_{1,1})$. This results in a TSP tour.
+
+%     \vspace{3mm}
+% The total cost is the cost of the $2-matching$, minus the cost of the deleted edges, plus the cost of the added edges. The cost of the deleted edges is at least 1 per edge, and the cost of the added edges is at most 2 per edge. Since we add and delete $k$ edges, we increase the cost by at most $2k -k = k$. Since a cycle needs at least $3$ vertices, there are at most $n/3$ cycles. Also, since each edge has cost at least $1$, $n \leq cost(OPT)$. Thus,
+%     \begin{align*}
+%         cost(ALG) &= cost(2-matching) - cost(deleted\ edges) +
+%   cost(added\ edges) \\
+%    &\leq cost(OPT) + k \leq cost(OPT) + n/3 \leq cost(OPT) +
+%   cost(OPT)/3 = 4/3 cost(OPT)
+%     \end{align*}
+
+
+% \subsection*{\Exercise}
+%     \textit{(Extra Credit)} The following problem arises in telecommunications networks, and is known as the SONET ring loading problem. The network consists of a cycle on n nodes, numbered 0 through n-1 clockwise around the cycle. Some set C of calls is given; each call is a pair $(i, j)$ originating at node i and ending at node j. The call can be routed either clockwise or counterclockwise around the ring. The objective is to route the calls so as to minimize the total load on the network. The load $L_i$ on link $(i, i + 1 ( mod n))$ is the number calls routed through the link, and the total load is $\max_{1\leq i\leq n} L_i$.  Give a 2-approximation algorithm for the SONET ring loading problem.
+    
+% \subsection*{Solution}
+%   A natural solution is to route a call from $i$ to $j$ clockwise or counterclockwise depending on which is shorter. 
+  
+%   \vspace{3mm}
+%   Say $n$ is even.  Let $e_i = (i,i+1)$ be the link with the largest load $L_i = cost(ALG)$. We consider the edge on the opposite side of the cycle, $e_{i + n/2 \mod n}$.  Note that every call that passes through $e_i$ in ALG cannot also pass through $e_{i + n/2 \mod n}$ - otherwise the total length of the route would be at least $n/2$, and our greedy algorithm always picks the shortest path. Thus choosing the opposite orientation routing would force that call through $e_{i + n/2 \mod n}$. OPT must route all $L_i$ calls, and each one passes through one of $e_i$ or $e_{i + n/2 \mod n}$. Thus one of those two must have load at least $L_i/2$ in OPT. Thus our algorithm, which has cost $L_i$ is a 2-approximation.
+  
+%   \vspace{3mm}
+%   If $n$ is odd, the argument is essentially the same, but we replace $e_{i + n/2 \mod n}$ with either $e_{i + (n-1)/2 \mod n}$ or $e_{i + (n+1)/2 \mod n}$. A route that passes through $e_i$ cannot pass through either of the above edges. The rest of the analysis follows.
+
+
+
+
+\end{document}

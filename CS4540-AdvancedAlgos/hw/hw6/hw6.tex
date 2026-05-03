@@ -1,0 +1,166 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\Var}[1]{\operatorname{Var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+\newcommand{\oline}[1]{\overleftrightarrow{#1}}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 6}
+\newcommand{\hmwkDueDate}{Mar.\ 15, 2024}
+\newcommand{\hmwkDueTime}{11:59pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{}
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy} 
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course.
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\subsection*{\Exercise}
+    Consider an online convex hull problem in which we are given the set s of $n$ points one at a time. After receiving each point, we are to compute the convex hull of the points seen so far. Obviously we could run Graham's scan once for each point, with a total running time of $\mathcal{O}(n^2 \log n)$.  Show how to solve the online convex hull problem in a total of $\mathcal{O}(n^2)$ time.
+
+\subsection*{\Exercise}
+  Given $n$ points in the plane, construct a simple (i.e.,
+  non-self-intersecting) polygon having these points as its vertices Devise an $\mathcal{O}(n \log n)$  algorithm and \textbf{show that this is optimal}.
+  
+  \subsection*{\Exercise}
+  Given two arbitrary convex polygons $P$ and $Q$ with $n$ vertices each,
+  compute the convex hull of $P \cup Q$. Note that the two polygons can
+  intersect any number of times, they can be disjoint, or one can be contained
+  within the other.
+  \begin{enumerate}[label=(\alph*)]
+    \item Specify as efficient an algorithm as you can to solve this problem,
+      and analyze its complexity and prove its correctness.
+    \item Use this algorithm to generate a divide-and-conquer algorithm
+      without presorting that finds the convex hull of an arbitrary set of $n$
+      points.
+  \end{enumerate}
+
+
+\subsection*{\Exercise}
+% \footnote{From \href{https://www.cs.umd.edu/class/spring2020/cmsc754/Handouts/hw3.pdf}{here}}
+Computational biologists often compute physical properties of large molecules. One of these properties is something called the \textit{accessible surface area} of the molecule. We will consider this problem in a 2-dimensional setting.
+
+\vspace{3mm}
+We model the atoms of our molecule as a set of unit disks, each of radius of 1, centered at a given set of points \( P = \{p_1, \dots, p_n\} \). Let \( b_i \) denote the unit disk centered at point \( p_i \). Let \( M(P) = \bigcup_{i=1}^n b_i \) denote the union of these disks (shaded in blue in Fig. \ref*{fig:solvent-surface}(a)). Let \( \partial M(P) \) denote its boundary. Observe that \( \partial M(P) \) is composed of circular arcs, and it may have multiple connected components (all of which contribute to the accessible surface).
+\begin{enumerate}[label=(\alph*)]
+    \item Present an \( O(n \log n) \)-time algorithm, which given a set \( P \) of \( n \) points in the plane, computes the length of accessible surface (see the solid curve in Fig. \ref*{fig:solvent-surface}(a)).
+
+    \vspace{2mm}
+    \textit{Note:} I am mostly interested in how to identify the circular arcs that make up the boundary of \( M(P) \), not the actual perimeter value. To simplify matters, you may assume that you have access to a black-box function that computes the length of a given circular arc.
+    
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=0.7\linewidth]{images/solvent_surface.png}
+        \caption{Solvent surface}
+        \label{fig:solvent-surface}
+    \end{figure}
+    
+    \item In most applications in drug design, the molecule resides in liquid solvent, such as water. A statistic that is more relevant is something called the \textit{solvent-accessible surface}. We model a water molecule as a disk of some radius \( r_0 \). Imagine that we roll such a disk around the entire boundary of \( M(P) \) and trace out the path taken by the center of this disk (the dashed curve in Fig. \ref*{fig:solvent-surface}(b)). As with the accessible surface, this boundary may have multiple components, all of which contribute to the final result.
+
+    \vspace{3mm}
+    Present an \( O(n \log n) \)-time algorithm, which given \( P \) and \( r_0 \), computes the length of the solvent-accessible surface (the dashed curve in Fig. \ref*{fig:solvent-surface}(b)). \textit{Hint:} This should be an easy extension to (a).% note: remove the hint next time.
+\end{enumerate}
+
+\end{document}

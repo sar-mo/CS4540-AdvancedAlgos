@@ -1,0 +1,157 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\var}[1]{\operatorname{var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 4}
+\newcommand{\hmwkDueDate}{Feb.\ 14, 2024}
+\newcommand{\hmwkDueTime}{11:59pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{}
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy} 
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course.
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\textbf{Note: This should have already been inferred, but unless otherwise stated, justification for a result / design should always be given.}
+
+\subsection*{\Exercise}
+  For some problem $P$, two online algorithms $A_1$ and $A_2$ are given, with a
+  competitive ratio of 2 and 3, respectively. Design a randomized online
+  algorithm with competitive ratio $9/4$.
+
+\subsection*{\Exercise}
+  We consider a version of the game Memory with just one player. As in the
+  usual game, let $n$ pairs of cards lie on the table, face down. In each move
+  of the game, the player can turn two cards, one at a time. If they are
+  identical, they are removed, otherwise they are turned face down again and
+  put back in their spots. The goal of the player is to remove all cards with
+  the least number of moves. Even after the successful turning of a pair, any
+  further turning is considered a move. We assume that the player can remember
+  all cards that have been turned at any time. The optimal strategy
+  needs $n$ moves to remove all $2n$ cards.
+  \begin{enumerate}
+    \item Design an online strategy that takes at most $2n$ moves. i.e. that is 2-competitive
+    \item Design an online strategy that takes at most $2n-1$ moves
+    \item Show that any deterministic strategy can be forced to take at least $2n-1$ moves.
+    \item What changes about the competitive ratio if the player gets a free move after removing a pair?
+  \end{enumerate}
+
+\subsection*{\Exercise}
+  For the Paging Problem, let \textsc{Alg} be any marking algorithm as
+  presented in the lecture with a cache of size k, and let \textsc{Opt} be an optimal
+  off-line-algorithm with a cache of size $h \leq k$. Prove that \textsc{Alg} is
+  $\frac{k}{k-h+1}$-competitive.
+
+  \vspace{2mm}
+  \textit{Hint:} Using the strategy from class where $h=k$, consider a decomposition of
+  the request sequence $\sigma$ into phases that are maximal subsequences with $k$
+  distinct pages requested.
+
+\end{document}
+
+https://www.ibr.cs.tu-bs.de/courses/ss18/oa/exercise_sheets/ex4.pdf
+in case we ever want some harder problems

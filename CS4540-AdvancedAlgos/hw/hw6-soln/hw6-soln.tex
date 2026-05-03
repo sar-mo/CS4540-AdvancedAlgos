@@ -1,0 +1,237 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    xleftmargin=\parindent,
+    showstringspaces=false
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\Var}[1]{\operatorname{Var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+\newcommand{\oline}[1]{\overleftrightarrow{#1}}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 6 Solutions}
+\newcommand{\hmwkDueDate}{Mar.\ 15, 2024}
+\newcommand{\hmwkDueTime}{11:59pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{}
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy} 
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course.
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+% \subsection*{Delauney Refinement}
+%     \href{https://www.cis.upenn.edu/~cis6100/ruppert.pdf}{original paper}
+%     \href{https://www.cs.purdue.edu/homes/tamaldey/course/531/2Dmeshing.pdf}{purdue}
+%     \href{https://en.wikipedia.org/wiki/Delaunay_refinement}{wikipedia}
+
+\subsection*{\Exercise}
+    Consider an online convex hull problem in which we are given the set s of $n$ points one at a time. After receiving each point, we are to compute the convex hull of the points seen so far. Obviously we could run Graham's scan once for each point, with a total running time of $o(n^2 \log n)$.  Show how to solve the online convex hull problem in a total of $o(n^2)$ time.
+
+\subsection*{Solution}
+    %Essentially, use the algorithm in problem 2. At each time step, merge the single new point into the convex hull of the other points $O(n)$ time. This gives a total running time of $O(n^2)$.
+    We recall that we can find the convex hull of points that are already in sorted order by $x$-coordinate in linear time. Also in linear time, if we have the vertices of a convex hull, we can put them in order of increasing $x$-coordinate in linear time by first finding the vertex with minimum $x$-coordinate, and then walking along the lower and upper hulls simultaneously, listing the vertices we see in order of their $x$-coordinate. Now note that any vertex on the convex hull of $p_1$, $p_2$,..., $p_i$, $p_{i+1}$ is either on the convex hull of $p_1$, $p_2$,..., $p_i$ or is point $p_{i+1}$. So, at each iteration, our online algorithm will put the convex hull vertices of $p_1$, $p_2$,..., $p_i$ in sorted order by their $x$-coordinate, insert $p_{i+1}$ into its correct position in this sorted list, and then find the convex hull of these points.  All this will happen in $O(n)$ time.  Doing this for each of the $n$ points gives a running time of $O(n^2)$, as desired.
+
+
+
+\subsection*{\Exercise}
+    Given $n$ points in the plane, construct a simple (i.e., non-self-intersecting) polygon having these points as its vertices. Devise an $O(n \log n)$  algorithm and show that this is optimal.
+    
+\subsection*{Solution}
+    Compute the upper hull of all the points in $O(n\log n)$ time - as part of the algorithm, you've sorted all the points by $x$-coordinate. Take all the other points, as well as the left and right most points of the upper hull. For these points, connect them in order of increasing $x$-coordinate, going from top to bottom in the event of a tie. Now we have two paths, an upper path (the upper hull) and a lower path, connecting the leftmost and rightmost points. The segments forming the upper hull do not intersect. The new segments we add do not intersect either by construction. Finally, the segments we add do not intersect with the segments of the upper hull, by definition of the upper hull/convex hull. Thus this is a non self-intersecting polygon.
+
+  \vspace{3mm}
+  Now, suppose you can do this in less than $O(n\log n)$ time. I'll show this would imply you could also sort in less than $O(n\log n)$ time, a contradiction. Let $x_1$, $x_2$, ... $x_n$ be some numbers that we would like to sort. Make them into points in the plane by considering $(x_1, x_1^2), (x_2, x_2^2),...,(x_n, x_n^2)$.  As we discussed in class, the convex hull of these points is all of the points, in order  of $x$-value. Because the points are in convex position, this is also the only polygon with these points as vertices - if two points that aren't adjacent around the convex hull are connected by a polygon edge, this edge would divide the points in two and you wouldn't be able to connect points on opposites sides of the edge without having intersecting edges.  If there was an algorithm for solving this problem in less than $O(n\log n)$ time, it would necessarily return the convex hull of these points, and you would be able to read off the numbers $x_1, x_2,...,x_n$ in sorted order. But then you've sorted the numbers in less than $O(n\log n)$ time, a contradiction. 
+
+  \vspace{3mm}
+  Alternately, you could show $O(n\log n)$ is optimal by showing that once you find a polygon with the points as vertices, you could then use this to find to convex hull in linear time. Because finding the convex hull is necessarily $O(n\log n)$, then finding a polling with these points as vertices must be as well. This requires proving some extra facts about polygons and convex hulls, though, for example that the points on the convex hull appear in order around the boundary of any polygon your algorithm finds. 
+  
+  \subsection*{\Exercise}
+    Given two arbitrary convex polygons $P$ and $Q$ with $n$ vertices each, compute the convex hull of $P \cup Q$. Note that the two polygons can intersect any number of times, they can be disjoint, or one can be contained within the other.
+  \begin{enumerate}[label=(\alph*)]
+    \item Specify as efficient an algorithm as you can to solve this problem,
+      and analyze its complexity and prove its correctness.
+    \item Use this algorithm to generate a divide-and-conquer algorithm
+      without presorting that finds the convex hull of an arbitrary set of $n$
+      points.
+  \end{enumerate}
+  
+\subsection*{Solution}
+  \begin{enumerate}[label=(\alph*)]
+    \item Recall that we had a divide and conquer type algorithm for upper and
+      lower hull. Separate our polygons $P$ and $Q$ into their upper and lower
+      hulls in $O(n)$ time: find the points on $P$ and $Q$ with minimum
+      and maximum x-coordinate each, and these separate the vertices of $P$ and $Q$ into two chains each. Here $n$ is the total number of vertices in $P$ and $Q$. 
+
+\vspace{3mm}
+      For now, consider the upper hull. We note that  any vertex on the upper hull of $P \cup Q$ must be on the upper hull of $P$ or on the upper hull of $Q$. In the decomposition, we get the
+      points in the upper hulls of $P$ and $Q$ sorted by x-coordinate. 
+      We can merge these sorted lists for $P$ and $Q$ in linear time, and any vertices on the upper hull of $P \cup Q$ must be contained in this merged sorted list.
+      Finally, use the upper hull merge algorithm done in class, which runs in $O(n)$ time when you have points that are already sorted by $x$-coordinate.
+      This gives us a final merge in $O(n)$ time.
+      
+    \item Now, we can use divide and conquer. We first split the input points
+      arbitrarily - we don't need to presort at all, we can just put half the points in one set and half in the other. We then find the convex hull of each subdivision recursively. Because we split our input points arbitrarily, these convex hull will probably not be disjoint, but that won't be a problem. Given the convex hulls of both subdivisions, we can use the algorithms of part (a) to merge them together, because this algorithm works even for polygons that overlap.  
+
+      \vspace{3mm
+      }
+      The recurrence is $T(n) = 2T(n/2) + O(n)$ which leads to an $O(n\log n)$
+      running time. Heuristically, we might expect this algorithm to be fairly fast because we don't presort the points.
+  \end{enumerate}
+  As a heuristic, you can first check if the new point is inside the convex hull of all the previous points, and if it is do nothing, but this isn't necessary to get the desired $O(n^2)$ running time. 
+  %this can be done as follows: at the $i^{th}$ iteration, we separate the convex hull of the points $p_1$,  $p_2$,...,$p_i$ we've seen so far into their lower and upper hull. Any vertex of the upper hull of $p_1$, $p_2$,..., $p_{i+1}$ is either in the upper hull of $p_1$,  $p_2$,..., $p_i$ or is $p_{i+1}$. We insert point $p_{i+1}$ into the correct position in the sorted list of vertices on the upper hull of $p_1$,  $p_2$,..., $p_i$, and run the $O(n)$ upper hull algorithm from class ,on these points to obtain the upper hull of $p_1$, $p_2$,..., $p_{i+1}$. We do the same for the lower hull. The running time of this is $O(n)$. 
+
+\subsection*{\Exercise}
+% \footnote{From \href{https://www.cs.umd.edu/class/spring2020/cmsc754/Handouts/hw3.pdf}{here}}
+Computational biologists often compute physical properties of large molecules. One of these properties is something called the \textit{accessible surface area} of the molecule. We will consider this problem in a 2-dimensional setting.
+
+\vspace{3mm}
+We model the atoms of our molecule as a set of unit disks, each of radius of 1, centered at a given set of points \( P = \{p_1, \dots, p_n\} \). Let \( b_i \) denote the unit disk centered at point \( p_i \). Let \( M(P) = \bigcup_{i=1}^n b_i \) denote the union of these disks (shaded in blue in Fig. \ref*{fig:solvent-surface}(a)). Let \( \partial M(P) \) denote its boundary. Observe that \( \partial M(P) \) is composed of circular arcs, and it may have multiple connected components (all of which contribute to the accessible surface).
+\begin{enumerate}[label=(\alph*)]
+    \item Present an \( O(n \log n) \)-time algorithm, which given a set \( P \) of \( n \) points in the plane, computes the length of accessible surface (see the solid curve in Fig. \ref*{fig:solvent-surface}(a)).
+
+    \vspace{2mm}
+    \textit{Note:} I am mostly interested in how to identify the circular arcs that make up the boundary of \( M(P) \), not the actual perimeter value. To simplify matters, you may assume that you have access to a black-box function that computes the length of a given circular arc.
+    
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.7\linewidth]{images/solvent_surface.png}
+        \caption{Solvent surface}
+        \label{fig:solvent-surface}
+    \end{figure}
+    
+    \item In most applications in drug design, the molecule resides in liquid solvent, such as water. A statistic that is more relevant is something called the \textit{solvent-accessible surface}. We model a water molecule as a disk of some radius \( r_0 \). Imagine that we roll such a disk around the entire boundary of \( M(P) \) and trace out the path taken by the center of this disk (the dashed curve in Fig. \ref*{fig:solvent-surface}(b)). As with the accessible surface, this boundary may have multiple components, all of which contribute to the final result.
+
+    \vspace{3mm}
+    Present an \( O(n \log n) \)-time algorithm, which given \( P \) and \( r_0 \), computes the length of the solvent-accessible surface (the dashed curve in Fig. \ref*{fig:solvent-surface}(b)). \textit{Hint:} This should be an easy extension to (a).% note: remove the hint next time.
+\end{enumerate}
+
+\subsection*{Solution}
+    \begin{enumerate}
+        \item \textbf{Design.} For each point $p_{i}$, let $\partial b_{i}$ be the boundary of the unit ball centered at $p_{i}$. Now create the Voronoi diagram for $P$. For each point $p_{i}$, this will create a new Voronoi cell $c_{i}$: $$c_{i} = \{p : \forall j,  \norm{p - p_{i}} \le \norm{p - p_{j}}\}.$$ The length of accessible surface is then given by $$|\partial M (P)| = \sum_{i = 1}^{n} |c_{i} \cap \partial b_{i}|.$$
+
+        \vspace{3mm}
+        \textbf{Analysis.} It suffices to prove $$\partial M (P) = \bigcup_{i = 1}^{n}(c_{i} \cap \partial b_{i}).$$ First, consider the formal definition for the two sets $\partial M (P) $ and $\bigcup_{i = 1}^{n}(c_{i} \cap \partial b_{i})$:
+        \begin{align*}
+            \partial M (P) &= \{p : \exists i, \forall j\ (\underbrace{||p - p_{i}|| = 1}_{\text{on boundary}} \land \underbrace{||p - p_{j}|| \ge 1}_{\text{not in interior}})\} \\
+            \bigcup_{i = 1}^{n}(c_{i} \cap \partial b_{i}) &= \{p : \exists i, \forall j\ (||p - p_{i}|| = 1 \land ||p - p_{j}|| \ge ||p - p_{i}||)\}.
+        \end{align*}
+        Notice the similarity between these definitions. In fact, if $x \in \partial M (P)$, then $\exists i, \forall j$, $||p - p_{i}|| = 1 \text{ and } ||p - p_{j}|| \ge 1 = ||p - p_{i}|| $, so $x \in \bigcup_{i = 1}^{n}(c_{i} \cap \partial b_{i})$.
+
+        \vspace{2mm}
+        Conversely, if $x \in \bigcup_{i = 1}^{n}(c_{i} \cap \partial b_{i})$, then $||p - p_{i}|| = 1 \text{ and } ||p - p_{j}|| \ge ||p - p_{i}|| \ge 1$, so $x \in \partial M (P)$. Thus the two sets are equal, and we are done.
+
+        \vspace{3mm}
+        I have also plotted a few molecules and the corresponding Voronoi diagram below using the code in the \hyperref[sec:appendix]{Appendix}; feel free to use this as a sanity check for any of the claims above.
+
+        \vspace{3mm}
+        \textbf{Runtime.} Computing the Voronoi diagram takes time $\mathcal{O}(n\log n)$. Computing the intersections of all Voronoi cells with their corresponding circles takes $\mathcal{O}(n)$ total time\footnote{The Voronoi diagram has total complexity $\mathcal{O}(n)$, so the amortized number of halfspaces/sides per region is constant. For each side, we check whether it intersects the corresponding circle.}. Thus this algorithm takes time $\mathcal{O}(n\log n)$.
+        \begin{center}
+            \includegraphics[scale=0.7]{images/solvent_voronoi.pdf}
+        \end{center}
+        \item Simply run the algorithm in part (a) but change the radius of the unit ball to be $1 + r_{0}$. This correctly yields the length of the solvent-accessible surface because each point on the boundary of the original unit balls is displaced outward by a distance of $r_{0}$, effectively increasing the radius of each circle by $r_{0}$.
+    \end{enumerate}
+
+\pagebreak
+\section*{Appendix} \label{sec:appendix}
+
+\subsection*{Voronoi Diagram Code}
+    {\small \lstinputlisting{voronoi.py}}
+
+\end{document}

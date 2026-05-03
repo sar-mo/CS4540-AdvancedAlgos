@@ -1,0 +1,394 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{cancel}
+
+%Creating algorithms
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+% colored links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=black!20!BurntOrange,
+    }
+
+% Inputting Python code
+\usepackage[dvipsnames]{xcolor}
+\definecolor{textblue}{rgb}{.2,.2,.7}
+\definecolor{textred}{rgb}{0.54,0,0}
+\definecolor{textgreen}{rgb}{0,0.43,0}
+\usepackage{upquote}
+\usepackage{listings}
+\lstset{
+    language=Python, 
+    tabsize=4,
+    basicstyle={\ttfamily},
+    keywordstyle=\color{textblue},
+    commentstyle=\color{textgreen},
+    stringstyle=\color{textred},
+    frame=none,
+    columns=fullflexible,
+    keepspaces=true,
+    showstringspaces=false,
+    xleftmargin=-15mm, % manual adjustment, figure out permanent solution
+}
+
+% Drawing figures
+\usepackage{tikz}
+\usetikzlibrary{calc, shapes.symbols}
+
+% Colored Boxes
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usetikzlibrary{shadows}
+\usepackage{lipsum}
+
+%Images
+\usepackage{graphicx}
+    \usepackage{subcaption}
+    \usepackage{float}
+
+%Formatting and Spacing
+\setitemize[1]{noitemsep, parsep = 5pt, topsep = 5pt}
+\setenumerate[1]{label = (\alph*), parsep = 1pt, topsep = 5pt}
+\setlength\parindent{0pt}
+\linespread{1.1}
+
+%Easy Numbering in case we add or remove questions
+\newcounter{counter}
+\newcommand{\Exercise}{Exercise \stepcounter{counter}\thecounter}
+
+\newcommand{\Cov}{\text{Cov}}
+\newcommand{\trace}{\text{trace}}
+\newcommand{\Normal}{\text{Normal}}
+\newcommand{\Var}[1]{\operatorname{Var}\left(#1\right)}
+\newcommand{\E}[1]{\operatorname{E}\left[#1\right]}
+\renewcommand{\Pr}[1]{\operatorname{P}\left(#1\right)}
+
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+\DeclarePairedDelimiterX{\inp}[2]{\langle}{\rangle}{#1, #2}
+
+%Custom Title Fields
+\newcommand{\hmwkTitle}{Homework 9}
+\newcommand{\hmwkDueDate}{April 25, 2024}
+\newcommand{\hmwkDueTime}{11:59pm EST}
+\newcommand{\hmwkClass}{Advanced Algorithms}
+\newcommand{\hmwkClassInstructor}{Professor Dana Randall}
+\newcommand{\hmwkSection}{Spring 2024}
+\newcommand{\hmwkAuthorName}{ }
+
+%Headers and Footers
+\usepackage{fancyhdr}
+\usepackage{extramarks}
+\pagestyle{fancy} 
+\lhead{CS 4540}
+\chead{\hmwkClass \ (\hmwkClassInstructor)}
+\rhead{\hmwkTitle}
+\cfoot{\thepage}
+\renewcommand\headrulewidth{0.4pt}
+\renewcommand\footrulewidth{0.4pt}
+
+\title{
+    \vspace{2in}
+    \textbf{\hmwkClass:\ \hmwkTitle}\\
+    \normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate\ at \hmwkDueTime}\\
+    \vspace{0.1in}\large{\textit{\hmwkClassInstructor\ \hmwkSection}} \\
+    \vspace{0.8in}
+    \begin{minipage}[t]{0.4\columnwidth}
+        {\footnotesize\textbf{As stated in the syllabus, unauthorized use of previous semester course materials is strictly prohibited in this course. \textcolor{Maroon}{EC problems are all-or-nothing. Furthermore, you must complete EC problems alone (i.e.\ without external resources or collaborators)}
+        }}
+    \vspace{0.5in}
+    \end{minipage}
+    \vspace{0.8in}
+    \author{\textbf{\hmwkAuthorName}}
+    \date{}
+}
+
+\begin{document}
+\maketitle
+
+\pagebreak
+
+
+\subsection*{\Exercise\ \textcolor{Maroon}{(EC)}}
+    How many domino tilings are there on a 6 x 8 lattice region? Show your work.
+
+% \subsection*{Solution}
+%   This is best done by counting paths in the lattice and putting them into a
+%   determinant. The path counting can be done with a dynamic programming
+%   algorithm, or with some combinatorics.  The final result is 167089.
+\subsection*{\Exercise\ \textcolor{Maroon}{(EC)}}
+  We are given $\lambda$ and a graph $G=(V, E)$ and we would like to sample
+  independent sets ${\cal{I}}$ on $G$.  The weight of an independent set $I$
+  is $\lambda^{|I|}/Z$ where $Z = \sum_{J \in {\cal{I}}} \lambda^{|J|}$ is the
+  normalizing constant to make this into a probability distribution.  
+
+   \vspace{3mm}
+  The Markov chain at each step picks a vertex $v \in V$ and a bit
+  $b \in \{0, 1\}$ at random. If $b = 1$, it tries to add $v$ to the current independent set, if
+  possible, and if $b=0$ it tries to remove the vertex to move to a new
+  independent set.  It does these moves with transition probabilities given
+  by:
+   $$P(I,I') \ =\ 
+   \begin{cases} \frac{1}{2n} \min\left( 1,
+     \lambda^{|I'|-|I|}\right), & \hbox{if \ } I\oplus I'=1,\cr 1-\sum_{J\sim
+     I} P(I,J), & \hbox{if \ } I=I',\cr 0, & \hbox{otherwise, \ }\cr
+   \end{cases}$$
+  (where $I \oplus I'$ is the number of vertices that are in one independent set
+  but not the other).  Convince yourself this chain will converge to the
+  stationary distribution $\pi$.  Give a coupling proof that shows that when
+  $\lambda$ is small enough, the chain is rapidly mixing.  What is the best
+  value of $\lambda$ you can show this for?
+% \subsection*{Solution}
+%   We are dealing with small $\lambda$, so say $\lambda < 1$.
+%   The Markov chain proposes a vertex $v$ chosen randomly, and then either
+%   tries to add or delete the vertex.  When $\lambda < 1$, we see that the
+%   probability that we try to of add any vertex $v$ is $\frac{\lambda}{2n}$,
+%   and the probability that we try to remove a vertex $v$ is $\frac{1}{2n}$.
+%   Another way to state is is: choose a vertex $v$ at random (probability
+%   $\frac{1}{n}$ per vertex), choose a bit $b$ at random (probability $\frac12$
+%   for each), then if $b$ is $0$, remove the vertex  - if it is there, and if $b$
+%   is $1$, add it with probability $\lambda$ - if this is a valid independent
+%   set.
+
+%   We use the method of path coupling - start with two states $x$ and $y$ that
+%   differ at a single vertex $v$. Wlog, say $x$ includes $v$ in its independent
+%   set, and $y$ does not.  Our coupling will choose the same vertex $v$
+%   and same bit $b$ for both $x$ and $y$.  We consider the expected change in
+%   distance between them - if this is 1/polynomial and negative, then we can
+%   show rapid mixing.  In this case, the natural definition of distance is the
+%   number of vertices on which $x$ and $y$ disagree.
+
+%   First, what moves will decrease the distance between $x$ and $y$?
+%   Since $x$ and $y$ differ only at $v$, then we have to choose $v$ as our
+%   vertex. Say we choose $v$ and $b=0$. Then $y$ stays the same, and $x$
+%   removes $v$ with probability $1$. This happenes with probability
+%   $\frac{1}{2n}$. Say we choose $v$ and $b=1$. Then $x$ stays the same, and
+%   $y$ adds $v$ with probability $\frac{\lambda}{2n}$.
+
+%   What about the bad moves? If we choose a neighbor of $v$ and $b=0$, then
+%   nothing will happen - as those vertices don't exist in $x$ (as $x$ is an
+%   independent set), or $y$ (as $y$ and $x$ only differ at $v$).
+%   However, if we choose a neighbor of $v$ and $b=1$, then it is possible that
+%   we add these in $y$ but not in $x$ (again, as $v$ is present in $x$).
+%   In the worst case, this move is possible for all neighbors of $v$ in $y$.
+%   So, the probability that this happens is $\frac{deg(v)\lambda}{2n}$.
+
+%   If we pick any other vertex not near $v$, we see that all moves happen with
+%   the same probability in $x$ and $y$, so the expected distance doesn't
+%   change.
+
+%   Thus the total expected change in distance is:
+%   $(-1) \cdot (\frac{1 + \lambda}{2n}) + (+1) \cdot
+%   (\frac{deg(v)\lambda}{2n})$. Solving for $0$, if $\Delta$ is the max degree
+%   of the graph, we see that this is negative
+%   when $\lambda < \frac{1}{\Delta - 1}$. For an arbirary graph, where $\Delta$
+%   can be as high as $\abs{V} - 1$, we have fast mixing whenever $\lambda <
+%   \frac{1}{\abs{V} - 2}$.
+
+\pagebreak
+
+\section*{Extra Practice}
+These problems are ungraded.
+
+\subsection*{\Exercise}
+All parts of this question pertain to a standard random walk on some graph. 
+  \begin{enumerate}[label=(\alph*)]
+    \item What is the hitting time $h_{uv}$ for two adjacent vertices $u$, $v$ on an $n$-vertex cycle?
+    \item What is the hitting time $h_{uv}$ for two (adjacent) vertices $u,v$ in an $n$-vertex clique?
+    \item Consider a random walk on an $n$-vertex clique starting at vertex 1. So $p^{(0)} = (1,0,....,0)$. What is $p^{(1)}$ (the distribution after one step of the Markov chain) and how far is it in $L_1$ distance from the stationary distribution $\pi$?     What is $p^{(2)}$ (the distribution after two steps of the Markov chain) and how far is it in $L_1$ distance from the stationary distribution $\pi$?  (Note that this shows that the mixing time is much less than the hitting time for the clique)   
+    \end{enumerate}
+
+% \subsection*{Solution}
+%  \begin{enumerate}[label=(\alph*)]
+%     \item You could try to calculate this exactly, but a more straightforward way is to calculate it using effective resistance. If we let each edge of the graph be a resistor of resistance 1, then the two paths from $u$ to $v$ have resistance $1$ (the single edge between them) and $n-1$ (the longer path between them, using that the resistance of resistors in series is the sum of their resistances). Then using the equation for resistors in parallel, we see that 
+%     $$R_{uv} = \frac{1}{(1/1) + (1/(n-1))} = \frac{n-1}{n}$$
+%     We can then use the equation $C_{uv} = 2m R_{uv}$ from class to conclude that the commute time $C_{uv} = 2n (n-1)/n = 2(n-1)$. 
+%     We note here that because $u$ and $v$ are symmetric (going from $u$ to $v$ looks exactly the same as going from $v$ to $u$), then $h_{vu} = h_{uv}$, and so $2(n-1) = C_{uv} = h_{uv} + h_{vu} = 2 h_{uv}$, implying $h_{uv} = n-1$. 
+   
+%     But in general you should be careful doing things like this, because it's not always true that $h_{uv} = h_{vu}$.
+%     \item Here, we calculate the hitting time directly instead of using effective resistance. The probability that we move from $u$ to $v$ in the first step is $1/(n-1)$. If you don't reach $v$ in the first step, no matter where you are, the probability of reaching $v$ in the next step is still $1/(n-1)$, and this remains true at each subsequent step until you finally reach $v$. In each step there is a probability of ``success'' (reaching $v$) of $p=1/(n-1)$, and so from probability theory we know that the expected amount of time until this ``success'' occurs is $1/ p= n-1$ steps, so we have $h_{uv} = n-1$. 
+%     \item We can calculate that $p^{(1)} = (0, 1/(n-1), 1/(n-1),...., 1/(n-1))$, where we are at the first vertex with probability 0 and at any other vertex with probability $1/(n-1)$. We note that the stationary distribution $\pi$ is clearly the uniform distribution, where we are at any vertex with probability 1/n. For the first vertex, the difference between its probability in the stationary distribution (1/n) and its probability in $p^{(1)}$   (0) is $1/n$. For every other vertex, the difference between its probability in the stationary distribution (1/n) and its probability in $p^{(1)}$   ($1/(n-1)$) is $1/(n-1) - 1/n = 1/(n(n-1))$. Summing up, the $L_1$ distance between $\pi$ and $p^{(0)}$ is $$1/n + (n-1) \cdot 1/(n(n-1)) = 2/n.$$
+    
+%     Similarly, we can calculate $p^{(2)}$. First, 
+%     $$ p^{(2)}[1] = \sum_{i \neq 1} p^{(1)}[i] \mathbb{P}(i \rightarrow 1)  = \sum_{i \neq 1}  \frac{1}{n-1} \frac{1}{n-1} = \frac{1}{n-1}$$
+%     For $j \neq 1$, 
+%     $$p^{(2)}[j] = \sum _{i = 1}^{n} p^{(1)}[i] \mathbb{P}(i \rightarrow j)$$
+%   Noting that $p^{(1)}[1] = 0$ and $\mathbb{P}(j \rightarrow j) = 0$, this sum reduces to 
+%   $$ p^{(2)}[j]  = \sum_{i > 1, i \neq j}  p^{(1)}[i] \mathbb{P}(i \rightarrow j) = (n-2) \frac{1}{n-1} \frac{1}{n-1} = \frac{n-2}{(n-1)^2}. $$
+%   The distance between $p^{(2)}$ and $\pi$ for $i = 1$ is $1/(n-1) - 1/n = 1/(n(n-1)$, while the distance for all other $i$ is $1/n - (n-2)/(n-1)^2 = 1/(n(n-1))$, so the $L_1$ distance between the two distributions is $2/(n(n-1))$. 
+%     \end{enumerate}
+
+\subsection*{\Exercise}
+  Say we have a Markov chain with states $1,\ldots, n$, and $P_{i,j}$ is
+  the probability that you move into state $j$ from state $i$.
+  We put these in a matrix $\mathcal{P} = [ P_{i,j} ]$ in which the entry in
+  the $i^{th}$ row and $j^{th}$ column is $P_{i,j}$.
+  
+  For each state $i$, the probability that the Markov chain is in state $i$
+  at time $0$ is $\pi_0[i]$. We put these in a probability vector
+  $\pi_0 = [ \pi_0[1], \pi_0[2], \ldots , \pi_0[n]]$,
+  \begin{enumerate}[label=(\alph*)]
+    \item Prove that after one time step, the distribution is $\pi_1 =
+     \pi_0 \mathcal{P}$.
+      (Hint: Think conditional probability.)
+    \item What is the distribution after $n$ time steps?
+    \item What equation does any stationary distribution $\pi$ satisfy?
+    \item Say there was a unique stationary distribution $\pi$, and
+      the row sums of the matrix $\forall j \sum_i \mathcal{P}_{ij} = 1$.
+      Such matrices are called \emph{doubly stochastic}. For these,
+      find the stationary distribution (in simple terms).
+  \end{enumerate}
+  
+% \subsection*{Solution}
+  % \begin{enumerate}[label=(\alph*)]
+  %   \item Conditioning on the fact that the current state was $i$, the
+  %     probability that the next state is $j$ is $P_{i,j}$. Thus the total
+  %     probability that the next state is $j$ is $\sum_i \pi[i] p_{i,j}$, which
+  %     is exactly the entry in the $j^{th}$ position of $\pi_0 \mathcal{P}$. 
+  %   \item $\pi_n = \pi_0 \mathcal{P}^n$ [note here this $n$ is different from the number $n$ of entries in $\pi$).
+  %   \item $\pi = \pi \mathcal{P}$
+  %   \item In this case, the uniform distribution $\pi[i] = 1/n$ satisfies the
+  %     equation above. This is because this $\pi$ satisfies the equation of part (c), that is, $\sum_i p_{i,j}\pi[i] = \frac{1}{n}\sum_i p_{i,j} = \frac{1}{n}$.
+  %     Thus if the stationary distribution is unique, this is the stationary
+  %     distribution.
+  % \end{enumerate}
+
+\subsection*{\Exercise}
+  Say the weather one day depends on the weather on the previous day (and
+  nothing before that), and the
+  weather is either sunny (S) or rainy (R). If it's sunny, the probability
+  that it will be sunny tomorrow is $.8$, and if it's rainy, the probability
+  that it will be rainy tomorrow is $.6$. We view this as a Markov chain.
+  \begin{enumerate}[label=(\alph*)]
+    \item What is the transition matrix?
+    \item If its sunny on monday, what is the probability that it is sunny
+      on thursday?
+    \item What is the stationary distribution? This can be thought of as the
+      long run percentage of time that it is sunny or rainy.
+    \item Say the weather depended on the previous two days instead. If it's
+      sunny both today and yesterday, the probability that it's sunny today
+      is $.8$, if its rainy today and yesterday, the probability that it's
+      rainy today is $.6$, and otherwise there's a $.5$ chance that it's
+      sunny today. How can we view this as a Markov chain, and what is the
+      transition matrix?
+  \end{enumerate}
+
+% \subsection*{Solution}
+%   \begin{enumerate}[label=(\alph*)]
+%     \item Let the first state be the probability that it is sunny, and let the second state be the probability it's raining. Then the
+%       transition matrix is:
+%       \[ P = \left(
+%         \begin{array}{cc}
+%           .8 & .2\\
+%           .4 & .6\\
+%         \end{array}
+%       \right) \]
+%     \item
+%       You can calculate that $[1,0] \mathcal{P}^3 = [.688 , .312]$. Thus, the
+%       probability is .688.
+%       \item One way to do this is to use detailed balance, which states that for any two states $x$ and $y$ in a Markov chain, if $P_{x,y}$ is the probability of going from $x$ to $y$ and $P_{y,x}$ is the opposite, the stationary distribution $\pi$ satisfies
+%       $$\pi[x] P_{x,y} = \pi[y] P_{y,x}$$
+%       Letting state $x$ bu sunny and state $y$ be raining, we see that 
+%       $$0.2 \pi[x] = 0.4 \pi[y]$$
+%       $$\frac{\pi[x]}{\pi[y]} = 2$$
+%       As the probability it's sunny is twice the probability that it's rainy and the probabilities must add up to one, the stationary distribution $\pi$ has $\pi[sunny] = 2/3$ and $\pi[rainy] = 1/3$. You can verify that $\pi \mathcal{P} = \pi$. 
+%     \item
+%       To get this as a Markov chain (the next state depends only on the current state), we will
+%       write the state as the weather for the last two days. Then, the four states
+%       are (sunny,sunny), (sunny,rainy), (rainy, sunny), and (sunny, rainy), where the pair (sunny, rainy) means it was sunny yesterday and rainy today, etc. Labeling these four states as 1,2,3,4 in that order, we see that
+%       \[ P = \left(
+%         \begin{array}{cccc}
+%           .8 & .2 & 0 & 0\\
+%           0 & 0 & .5 & .5\\
+%           .5 & .5 & 0 & 0\\
+%           0 & 0 & .4 & .6
+%         \end{array}
+%       \right) \]
+%       where $P_{1,2} = 0.2$ is the probability of moving from state $(sunny, sunny)$ to state $(sunny, rainy)$, etc.
+%   \end{enumerate}
+
+\subsection*{\Exercise}
+  Say we place $k$ balls on the vertices of a graph with $n$ vertices so
+  that each vertex has at most one ball. At each step, we
+  pick a ball at random, and pick one of its neighbors at random.
+  We then try to move the ball to its neighbor. If the neighbor is
+  unoccupied, move the ball to this neighbor, otherwise do nothing. Assume
+  the graph $G$ is connected, and has at least $k$ vertices.
+  \begin{enumerate}
+    \item What is the state space $\Omega$? What is $\abs{\Omega}$?
+    \item Show that this state space is connected by moves of this Markov
+      chain.
+    \item What is the stationary distribution, if we allowed multiple balls
+      to occupy the same vertex?  Give as simple an expression as you can,
+      and express the distribution in terms of properties of the graph.
+
+      (Recall from class that when there is only one ball, this reduces to a
+      simple random walk on the graph, which has stationary distribution
+      $\pi[v] = \frac{deg(v)}{2\abs{E}}$. This was proven to be the
+      stationary distribution by showing that it satisfied the time
+      reversibility equations.)
+    \item Give an expression for the stationary distribution when we don't
+      allow balls to occupy the same vertex.
+  \end{enumerate}
+
+% \subsection*{Solution}
+%   \begin{enumerate}
+%     \item The state space is all possible ways to choose $k$ balls to place on
+%       $n$ vertices. There are $n \choose k$ of these.
+%     \item We show that any state $x$ can reach another state $y$ by
+%       induction on the number of balls not in the same position with $x$ and
+%       $y$.
+      
+%       Base case: if $x$ and $y$ differ in $0$ balls, we are done.
+
+%       Inductive step: Say $x$ and $y$ differ in $m$ locations. Let vertex s be
+%       a vertex that has a ball in x but not y, and let vertex t be a vertex
+%       that has a ball in y but not x.
+%       Consider a path from s to t in state $x$.  This path may have balls on
+%       it already, $b_1, \ldots b_i$, where $b_1$ is on $s$ and $b_i$ is not
+%       on $t$. Since the path from $b_i$ to $t$ is empty, move ball $b_i$ to
+%       $t$. Then, move ball $b_{i-1}$ to the old location of ball $b_i$, and so
+%       on, until we move $b_1$ to the old location of $b_2$. All vertices that
+%       had a ball still have a ball, except we no longer have a ball at $s$ and
+%       we now have a ball at $t$. Thus this new state $x'$ and $y$ differ in
+%       $m-1$ locations. By the inductive hypothesis, $x'$ and $y$ are
+%       connected by moves of this markov chain. Thus $x$ and $y$ are also
+%       connected.
+%     \item If we allow multiple balls per vertex, we may interpret each ball as
+%       conducting its own independent random walk on the graph. In equilibrium,
+%       each ball is likely to be at vertex $i$ with probability
+%       $\frac{deg(i)}{2\abs{E}}$. Thus (by the multinomial distribution), the
+%       probability that we have $j_1$ balls at $v_1$, $j_2$ balls at
+%       $v_2$,\ldots is
+%       \[ {k \choose {j_1, j_2, \ldots j_n}} \prod_i
+%       (\frac{deg(v_i)}{2\abs{E}})^{j_i}\]
+%     \item Here, we eliminate a large portion of the state space above - we
+%       restrict so that each vertex can only have one ball. But the
+%       \emph{proportion} between all the valid states should still be the same
+%       by the reversibilty conditions - for any valid states $x$ and $y$,
+%       we still want that $\pi_x p_{x,y} = \pi_y p_{y,x}$ - we just need to
+%       scale $\pi_x$ and $\pi_y$ by the same amount.
+%       Noting that much of the expression in part (c) is a constant that
+%       cancels out, we see that the probability that a set of vertices
+%       $\{v_{i_1}, v_{i_2}, \ldots v_{i,k}\}$ all have balls is proportional
+%       to $\prod_j deg(v_{i_j})$. Thus the final probability is
+%       $\frac{1}{Z}\prod_j deg(v_{i_j})$, where $Z$ is $\sum_{all\ {n \choose k}\
+%       choices\ j\ of\ vertices} \prod_j deg(v_{i_j})$.
+%   \end{enumerate}
+
+
+
+
+\end{document}
